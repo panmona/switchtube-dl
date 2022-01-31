@@ -1,4 +1,4 @@
-﻿// For more information see https://aka.ms/fsharp-console-apps
+﻿module TubeDl.Program
 
 open System.Net.Http.Headers
 open System.Net
@@ -8,23 +8,17 @@ open Microsoft.FSharpLu.Text
 open FsHttp
 open FsHttp.DslCE
 open FSharp.Data
+open Thoth.Json.Net
 
 type ErrorTypes =
     /// Token is incorrect
     | UnauthorizedAccess
     /// This resource was not found
     | ResourceNotFound
+    /// Be gentle with the api and send less requests!
+    | TooManyRequests
     /// An unexpected api error occured
     | ApiError
-
-// TODO: context or something or always token?
-let requestChannelVideos token channelId =
-    http {
-        // GET "https://tube.switch.ch/api/v1/browse/channels"
-        GET $"https://tube.switch.ch/api/v1/browse/channels/%s{channelId}/videos"
-        CacheControl "no-cache"
-        Authorization $"Token %s{token}"
-    }
 
 let tryParseLinkHeader (header : string) =
     // For example: "<https://tube.switch.ch/api/v1/browse/channels?page=3>; rel=\"next\""
@@ -57,20 +51,24 @@ let nextPage (headers : HttpResponseHeaders) =
     | None -> None
 
 let request =
-    let resp = requestChannelVideos "token" "FMnsK03wWD"
+    let api = ApiRequests.api ApiRequests.RequestType.ChannelVideos
+    let resp = api "token" "FMnsK03wWD"
     // TODO: improve return value
     // TODO: stream?
     match resp.statusCode with
     | HttpStatusCode.OK ->
-        (Response.toJson resp, nextPage resp.headers)
+        (Response.toText resp, nextPage resp.headers)
         |> Ok
-    | HttpStatusCode.Unauthorized -> Error UnauthorizedAccess
+    | HttpStatusCode.Unauthorized
+    | HttpStatusCode.Forbidden -> Error UnauthorizedAccess
     | HttpStatusCode.NotFound -> Error ResourceNotFound
+    | HttpStatusCode.TooManyRequests -> Error TooManyRequests
     | HttpStatusCode.InternalServerError
     | _ -> Error ApiError
 
 match request with
 | Ok (json, header) ->
-    printfn "%A" json
     printfn "%A" header
+    let x = Decode.fromString (Decode.list ChannelDetails.decoder) json
+    printfn "%A" x
 | Error errorValue -> printfn "%A" errorValue
