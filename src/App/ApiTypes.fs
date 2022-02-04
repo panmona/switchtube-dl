@@ -2,7 +2,7 @@ namespace TubeDl
 
 open Thoth.Json.Net
 
-type ChannelDetails =
+type ChannelVideo =
     {
         Id : string
         ProfileId : int
@@ -13,8 +13,8 @@ type ChannelDetails =
         DurationInMilliseconds : int
     }
 
-module ChannelDetails =
-    let decoder : Decoder<ChannelDetails> =
+module ChannelVideo =
+    let decoder : Decoder<ChannelVideo> =
         Decode.object (fun get ->
             {
                 Id = get.Required.Field "id" Decode.string
