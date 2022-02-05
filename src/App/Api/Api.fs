@@ -64,7 +64,7 @@ let private downloadVideo _token relativeAssetPath =
         CacheControl "no-cache"
     }
 
-let private apiWithoutHandling requestType =
+let private request requestType =
     // This function will break when APIs with different params would be needed but these apis will most certainly suffice.
     match requestType with
     | RequestType.ChannelDetails -> channelDetails
@@ -84,8 +84,7 @@ let private handleResult (response : Response) =
     | _ -> Error ApiError
 
 let api requestType token =
-    apiWithoutHandling requestType token
-    >> handleResult
+    request requestType token >> handleResult
 
 let toStream = Response.toStream
 

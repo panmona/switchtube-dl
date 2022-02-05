@@ -9,7 +9,9 @@
   <ItemGroup>
     <Compile Include="Interop\Uri.fs" />
     <Compile Include="Interop\TimeSpan.fs" />
-    <Compile Include="Api\ApiObjects.fs" />
+    <Compile Include="Interop\String.fs" />
+    <Compile Include="Interop\Path.fs" />
+    <Compile Include="Api\Entities.fs" />
     <Compile Include="Api\Api.fs" />
     <Compile Include="Api\Decode.fs" />
     <Compile Include="TubeInfo.fs" />

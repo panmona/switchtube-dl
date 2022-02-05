@@ -5,6 +5,16 @@ type TubeInfoError =
     | ApiError of Api.ApiError
     | DecodeError of string
 
+let videoInfo token videoId =
+    let apiRes = Api.api Api.RequestType.VideoDetails token videoId
+
+    match apiRes with
+    | Ok response ->
+        Api.toText response
+        |> Decode.videoDetails
+        |> Result.mapError TubeInfoError.DecodeError
+    | Error e -> TubeInfoError.ApiError e |> Error
+
 let pathForVideo token videoId =
     let apiRes = Api.api Api.RequestType.VideoPaths token videoId
 
@@ -12,7 +22,7 @@ let pathForVideo token videoId =
     | Ok response ->
         Api.toText response
         |> Decode.videoPaths
-        |> Result.map (List.head >> VideoPath.path)
+        |> Result.map List.head
         |> Result.mapError TubeInfoError.DecodeError
     | Error e -> TubeInfoError.ApiError e |> Error
 
@@ -43,4 +53,11 @@ let channelVideos token channelId =
         Api.toText response
         |> Decode.channelVideos
         |> Result.mapError TubeInfoError.DecodeError
+    | Error e -> TubeInfoError.ApiError e |> Error
+
+let downloadVideo token path =
+    let apiRes = Api.api Api.RequestType.DownloadVideo token path
+
+    match apiRes with
+    | Ok response -> Api.toStream response |> Ok
     | Error e -> TubeInfoError.ApiError e |> Error

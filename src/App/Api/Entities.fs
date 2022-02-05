@@ -52,7 +52,7 @@ module ChannelVideo =
 
     let duration channelVideo =
         channelVideo.DurationInMilliseconds
-        |> System.TimeSpan.FromMilliseconds
+        |> TimeSpan.fromMilliseconds
 
 type VideoDetails =
     {
@@ -81,13 +81,43 @@ module VideoDetails =
 
     let duration videoDetails =
         videoDetails.DurationInMilliseconds
-        |> System.TimeSpan.FromMilliseconds
+        |> TimeSpan.fromMilliseconds
+
+[<RequireQualifiedAccess>]
+type MediaType =
+    | Mp4
+    | Mp3
+    | Jpeg
+    | Png
+
+module MediaType =
+    let decoder : Decoder<MediaType> =
+        fun path value ->
+            let e = (path, BadPrimitive ("a media type", value))
+
+            if Decode.Helpers.isString value then
+                Decode.Helpers.asString value
+                |> function
+                    | "video/mp4" -> Ok MediaType.Mp4
+                    | "audio/mp3" -> Ok MediaType.Mp3
+                    | "image/jpeg" -> Ok MediaType.Jpeg
+                    | "image/png" -> Ok MediaType.Png
+                    | _ -> Error e
+            else
+                Error e
+
+    let extension =
+        function
+        | MediaType.Mp4 -> "mp4"
+        | MediaType.Mp3 -> "mp3"
+        | MediaType.Jpeg -> "jpg"
+        | MediaType.Png -> "png"
 
 type VideoPath =
     {
         Path : string
         Name : string
-        MediaType : string
+        MediaType : MediaType
         ExpiresAt : System.DateTimeOffset
     }
 
@@ -97,9 +127,10 @@ module VideoPath =
             {
                 Path = get.Required.Field "path" Decode.string
                 Name = get.Required.Field "name" Decode.string
-                MediaType = get.Required.Field "media_type" Decode.string
+                MediaType = get.Required.Field "media_type" MediaType.decoder
                 ExpiresAt = get.Required.Field "expires_at" Decode.datetimeOffset
             }
         )
+    // TODO fix me
 
     let path videoPath = videoPath.Path
