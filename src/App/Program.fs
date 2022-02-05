@@ -18,20 +18,5 @@ let videoStream =
     path
     |> Result.bind (VideoPath.path >> TubeInfo.downloadVideo token)
 
-match videoStream with
-| Ok stream ->
-    let fileName =
-        FileHandling.fileNameFromTitle "OSI Modell, Topologien und Zugriffsverfahren"
-
-    let fileWithExt = $"%s{fileName}.%s{extension}"
-
-    let res' =
-        FileHandling.saveFileFromStream FileHandling.OverwriteFile.KeepAsIs "." fileWithExt stream
-
-    match res' with
-    | Ok _ -> printfn "it seems to have worked"
-    | Error e -> printfn "%A" e
-| Error errorValue -> printfn "%A" errorValue
-
 // TODO next step: write file handling funcs
 // TODO then write actual cli

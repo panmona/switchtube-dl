@@ -13,9 +13,7 @@ type OverwriteFile =
 [<RequireQualifiedAccess>]
 type SaveFileError = | FileExists
 
-// TODO move these functions to a proper module.
-// -> maybe map all api objects to proper internal objects after or in the Decoder instead?
-let fileNameFromTitle videoTitle =
+let private validFileName str =
     let isInvalidChar c =
         // This list may be incomplete
         [
@@ -44,9 +42,12 @@ let fileNameFromTitle videoTitle =
         | ' ' -> '_'
         | c -> c
 
-    // TODO ö, ä etc.
-    String.toCharArray videoTitle
-    |> Array.filter (isInvalidChar >> not)
+    str
+    |> String.normalize
+    |> String.toCharArray
+    |> Array.filter (fun c ->
+        Char.nonSpacingMark c && isInvalidChar c |> not
+    )
     |> Array.map replaceSpace
     |> System.String
 
@@ -57,12 +58,19 @@ let private saveFile fullPath (stream : Stream) =
     stream.CopyTo file
     Ok ()
 
-let saveFileFromStream overwrite basePath fileName stream =
-    // TODO handle possible exceptions
-    let dirPath = FileInfo(basePath).Directory.FullName
-    let path = Path.combine dirPath fileName
-
-    match File.Exists path, overwrite with
+let private saveFileFromStream overwrite fullPath stream =
+    match File.Exists fullPath, overwrite with
     | true, OverwriteFile.KeepAsIs -> Error SaveFileError.FileExists
     | true, OverwriteFile.Overwrite
-    | false, _ -> saveFile path stream
+    | false, _ -> saveFile fullPath stream
+
+let saveVideo overwrite basePath videoDetails videoPath stream =
+    let fileName =
+        let extension = MediaType.extension videoPath.MediaType
+        let name = validFileName videoDetails.Title
+        $"%s{name}.%s{extension}"
+    let path =
+        // TODO handle possible exceptions
+        let dirPath = FileInfo(basePath).Directory.FullName
+        Path.combine dirPath fileName
+    saveFileFromStream overwrite path stream
