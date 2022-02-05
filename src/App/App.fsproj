@@ -7,10 +7,12 @@
   </PropertyGroup>
 
   <ItemGroup>
-    <Compile Include="Uri.fs" />
-    <Compile Include="ApiObjects.fs" />
-    <Compile Include="Api.fs" />
-    <Compile Include="Decode.fs" />
+    <Compile Include="Interop\Uri.fs" />
+    <Compile Include="Interop\TimeSpan.fs" />
+    <Compile Include="Api\ApiObjects.fs" />
+    <Compile Include="Api\Api.fs" />
+    <Compile Include="Api\Decode.fs" />
+    <Compile Include="TubeInfo.fs" />
     <Compile Include="FileHandling.fs" />
     <Compile Include="Program.fs" />
   </ItemGroup>

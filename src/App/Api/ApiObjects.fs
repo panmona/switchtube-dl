@@ -4,12 +4,12 @@ open Thoth.Json.Net
 
 type ChannelDetails =
     {
-        Id: string
-        OrganizationId: int
-        Name: string
-        Description: string
-        Category: string
-        Language: string
+        Id : string
+        OrganizationId : int
+        Name : string
+        Description : string
+        Category : string
+        Language : string
     }
 
 module ChannelDetails =
@@ -50,16 +50,19 @@ module ChannelVideo =
             }
         )
 
+    let duration channelVideo =
+        channelVideo.DurationInMilliseconds
+        |> System.TimeSpan.FromMilliseconds
 
 type VideoDetails =
     {
-        Id: string
-        ProfileId: int
-        ChannelId: int
-        Title: string
-        PublishedAt: System.DateTimeOffset
-        LicenseCode: string
-        DurationInMilliseconds: int
+        Id : string
+        ProfileId : int
+        ChannelId : int
+        Title : string
+        PublishedAt : System.DateTimeOffset
+        LicenseCode : string
+        DurationInMilliseconds : int
     }
 
 module VideoDetails =
@@ -72,16 +75,20 @@ module VideoDetails =
                 Title = get.Required.Field "title" Decode.string
                 PublishedAt = get.Required.Field "published_at" Decode.datetimeOffset
                 LicenseCode = get.Required.Field "license_code" Decode.string
-                DurationInMilliseconds = get.Required.Field "expires_at" Decode.int
+                DurationInMilliseconds = get.Required.Field "duration_in_milliseconds" Decode.int
             }
         )
 
+    let duration videoDetails =
+        videoDetails.DurationInMilliseconds
+        |> System.TimeSpan.FromMilliseconds
+
 type VideoPath =
     {
-        Path: string
-        Name: string
-        MediaType: string
-        ExpiresAt: System.DateTimeOffset
+        Path : string
+        Name : string
+        MediaType : string
+        ExpiresAt : System.DateTimeOffset
     }
 
 module VideoPath =
@@ -94,3 +101,5 @@ module VideoPath =
                 ExpiresAt = get.Required.Field "expires_at" Decode.datetimeOffset
             }
         )
+
+    let path videoPath = videoPath.Path

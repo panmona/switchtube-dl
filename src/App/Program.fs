@@ -1,13 +1,10 @@
 ﻿module TubeDl.Program
 
-let request =
-    let api = Api.api Api.RequestType.VideoDetails
-    api "token" "bqCG9XLPHN"
+// TODO Remove FsharpX.Extras if I don't need it in the end
 
-match request with
-| Ok response ->
-    let t = Api.toText >> Decode.channelVideos
-    t response
-    |> printfn "%A"
-| Error errorValue ->
-    printfn "%A" errorValue
+let token = "token"
+let res = TubeInfo.channelVideos token "bqCG9XLPHN"
+
+match res with
+| Ok videos -> printfn "%A" videos
+| Error errorValue -> printfn "%A" errorValue

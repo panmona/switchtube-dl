@@ -53,10 +53,10 @@ let private videoPaths token videoId =
         Authorization (tokenHeader token)
     }
 
-/// The asset path should contain the whole path with the baseUrl as the root
-let private downloadVideo _token assetPath =
+/// The asset path should contain the whole relative path
+let private downloadVideo _token relativeAssetPath =
     let uri =
-        Uri.initRelative baseUrl assetPath
+        Uri.initRelative baseUrl relativeAssetPath
         |> Uri.absoluteUri
 
     http {
