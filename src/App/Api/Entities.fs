@@ -131,6 +131,5 @@ module VideoPath =
                 ExpiresAt = get.Required.Field "expires_at" Decode.datetimeOffset
             }
         )
-    // TODO fix me
 
     let path videoPath = videoPath.Path

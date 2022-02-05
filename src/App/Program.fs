@@ -1,22 +1,35 @@
 ﻿module TubeDl.Program
 
-open System.IO
-open Microsoft.FSharpLu
+open Argu
+open TubeDl.Cli
 
-// TODO Remove FsharpX.Extras if I don't need it in the end
+let runConfig c =
+    // TODO implement config command handling
+    Ok ()
 
-let token = ""
 
-let path = TubeInfo.pathForVideo token "tFfhu240GV"
+[<EntryPoint>]
+let main argv =
+    let errorHandler =
+        ProcessExiter (
+            colorizer =
+                function
+                | ErrorCode.HelpText -> None
+                | _ -> Some System.ConsoleColor.Red
+        )
 
-let extension =
-    match path with
-    | Ok p -> MediaType.extension p.MediaType
-    | Error e -> failwith (sprintf "%A" e)
+    let parser =
+        ArgumentParser.Create<CliArgs> (errorHandler = errorHandler)
 
-let videoStream =
-    path
-    |> Result.bind (VideoPath.path >> TubeInfo.downloadVideo token)
+    let results =
+        parser.ParseCommandLine (inputs = argv, raiseOnUsage = true)
 
-// TODO next step: write file handling funcs
-// TODO then write actual cli
+    let executionType = CliArgParse.tryGetExecutionType results
+
+    match executionType with
+    | Some (ExecutionType.Config c) -> runConfig c
+    | Some (ExecutionType.Download d) -> runDownload d
+    | None ->
+        printfn "%s" (parser.PrintUsage ())
+        Error (ArgumentsNotSpecified "")
+    |> CliError.getExitCode

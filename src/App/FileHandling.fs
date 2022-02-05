@@ -45,9 +45,7 @@ let private validFileName str =
     str
     |> String.normalize
     |> String.toCharArray
-    |> Array.filter (fun c ->
-        Char.nonSpacingMark c && isInvalidChar c |> not
-    )
+    |> Array.filter (fun c -> Char.nonSpacingMark c && isInvalidChar c |> not)
     |> Array.map replaceSpace
     |> System.String
 
@@ -57,6 +55,7 @@ let private saveFile fullPath (stream : Stream) =
     // TODO use async version?
     stream.CopyTo file
     Ok ()
+
 
 let private saveFileFromStream overwrite fullPath stream =
     match File.Exists fullPath, overwrite with
@@ -69,8 +68,11 @@ let saveVideo overwrite basePath videoDetails videoPath stream =
         let extension = MediaType.extension videoPath.MediaType
         let name = validFileName videoDetails.Title
         $"%s{name}.%s{extension}"
+
     let path =
+        // TODO? Microsoft.FSharpLu.File.createDirIfNotExists. but probably ask user first!
         // TODO handle possible exceptions
         let dirPath = FileInfo(basePath).Directory.FullName
         Path.combine dirPath fileName
+
     saveFileFromStream overwrite path stream
