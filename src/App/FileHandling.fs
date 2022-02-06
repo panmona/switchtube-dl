@@ -4,7 +4,6 @@ open System.IO
 open FsHttp.Helper
 open Microsoft.FSharpLu
 
-// TODO move this elsewhere
 [<RequireQualifiedAccess>]
 type OverwriteFile =
     | KeepAsIs

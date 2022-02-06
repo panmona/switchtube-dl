@@ -15,7 +15,7 @@ type DownloadArgs =
     | [<Unique ; First ; AltCommandLine("-c")>] Channel of channel_id : string
     | [<Unique ; First ; AltCommandLine("-v")>] Video of video_id : string
     | [<Unique ; First ; AltCommandLine("-u")>] Url of url : string
-    | [<AltCommandLine("-t")>] Token of token : string
+    | [<ExactlyOnce ; AltCommandLine("-t")>] Token of token : string
     | [<AltCommandLine("-p")>] Path of path : string
     | [<AltCommandLine("-f")>] Force
 
@@ -31,7 +31,7 @@ type DownloadArgs =
             | Force -> "Overwrite already existing files"
 
 type CliArgs =
-    | [<Unique ; First ; CliPrefix(CliPrefix.None)>] Dl of ParseResults<DownloadArgs>
+    | [<Unique ; CliPrefix(CliPrefix.None)>] Dl of ParseResults<DownloadArgs>
     | [<Unique ; CliPrefix(CliPrefix.None)>] Config of ParseResults<ConfigArgs>
 
     interface IArgParserTemplate with

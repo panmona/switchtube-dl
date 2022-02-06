@@ -1,8 +1,10 @@
 namespace TubeDl.Cli
 
 open Argu
+
 open TubeDl
 open TubeDl.Cli
+open TubeDl.FileHandling
 
 [<RequireQualifiedAccess>]
 type ExecutionType =
@@ -27,16 +29,18 @@ module CliArgParse =
 
 [<RequireQualifiedAccess>]
 type DownloadType =
-    | Channel of string
-    | Video of string
-    | Url of string
+    | Channel of Id: string
+    | Video of Id: string
+    | Url of Url: string
+
+type Token = | Token of string
 
 type DownloadCmdCfg =
     {
         DownloadType : DownloadType
-        // Token : string
+        Token : Token
         Path : string
-        Force : bool
+        OverwriteFile : OverwriteFile
     }
 
 module DownloadArgParse =
@@ -61,20 +65,13 @@ module DownloadArgParse =
             results.GetResult DownloadArgs.Url
             |> DownloadType.Url
             |> Some
-        | false, false, false ->
-            None
-
-    let tryGetToken (results : ParseResults<DownloadArgs>) =
-        match results.Contains DownloadArgs.Token with
-        | true ->
-            results.GetResult DownloadArgs.Token
-            |> Some
-        | false -> Env.variable Constants.tokenEnvName
+        | false, false, false -> None
 
     let tryGetPath (results : ParseResults<DownloadArgs>) =
         match results.Contains DownloadArgs.Path with
         | true ->
             let path = results.GetResult DownloadArgs.Path
+
             match Path.isFullyQualified path with
             | true -> Some path
             | false -> None
@@ -83,11 +80,17 @@ module DownloadArgParse =
     /// This function is unsafe! Verify the different arguments first.
     let initCfgFromArgs results =
         let dlTypeOpt = tryGetDownloadType results
-        // let tokenOpt = tryGetToken results
+        let token = results.GetResult DownloadArgs.Token // Mandatory argument, safe to call this.
         let pathOpt = tryGetPath results
+
+        let overwrite =
+            match results.Contains DownloadArgs.Force with
+            | true -> OverwriteFile.Overwrite
+            | false -> OverwriteFile.KeepAsIs
+
         {
             DownloadType = dlTypeOpt.Value
-            Force = results.Contains DownloadArgs.Force
-            // Token = tokenOpt.Value
+            Token = Token token
             Path = pathOpt.Value
+            OverwriteFile = overwrite
         }

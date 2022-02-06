@@ -28,8 +28,10 @@ let main argv =
 
     match executionType with
     | Some (ExecutionType.Config c) -> runConfig c
-    | Some (ExecutionType.Download d) -> runDownload d
+    | Some (ExecutionType.Download d) -> DownloadCmd.runDownload d
     | None ->
+        // TODO Print these in red with proper error message
+        printfn "Couldn't determine execution type. Specify a subcommand."
         printfn "%s" (parser.PrintUsage ())
         Error (ArgumentsNotSpecified "")
     |> CliError.getExitCode
