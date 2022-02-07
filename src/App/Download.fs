@@ -35,6 +35,48 @@ let downloadChannelMetadata cfg id =
             }
     }
 
+let printMetadataTable metadata =
+    let columns =
+        [
+            Table.Column.withAlign "Index" Table.Alignment.Center
+            Table.Column.init "Title"
+            Table.Column.init "Duration"
+            Table.Column.withAlign "Date" Table.Alignment.Center
+        ]
+
+    let videoToRow v =
+        [
+            v.Title
+            (VideoDetails.duration >> TimeSpan.hourMinuteSecond) v
+            DateTime.isoString v.PublishedAt
+        ]
+
+    let rows =
+        metadata.Videos
+        |> List.sortBy (fun v -> v.PublishedAt)
+        |> List.mapi (fun i v -> [ $"%3i{i + 1}" ] @ videoToRow v)
+
+    Table.table TableBorder.Minimal columns rows
+
+let getSelectionInputFromPrompt max =
+    let validation input =
+        let errorAnnouncement = ":collision: [bold red]Uh oh![/]"
+
+        match isValidAndInAllowedRange (max, 1) input with
+        | Valid -> Ok ()
+        | InvalidTokens e ->
+            let tokens =
+                e
+                |> List.map (fun e -> $"[italic]%s{e}[/]")
+                |> String.concat ", "
+
+            $"%s{errorAnnouncement} [bold]Wasn't able to parse your input.[/]\nThe following tokens were invalid: %s{tokens}"
+            |> Error
+        | MaxValue i -> Error $"%s{errorAnnouncement} The number %i{i} is higher than the allowed: %i{max}"
+        | MinValue i -> Error $"%s{errorAnnouncement} The number %i{i} is lower than 0"
+
+    TextPrompt.promptWithValidation "Download >" validation
+
 let runDownloadChannel cfg id =
     asyncResult {
         let callback _ctx =
@@ -52,77 +94,26 @@ let runDownloadChannel cfg id =
             |> AsyncResult.mapError ChannelDownloadError.ApiError
 
         Markup.printn $":sparkles: Found the following videos for channel [bold underline]%s{metadata.Name}[/]:"
+        printMetadataTable metadata
 
-        // TODO create a better wrapper around these methods
-        let table = Table ()
-
-        HasTableBorderExtensions.Border (table, TableBorder.Minimal)
-        |> ignore
-
-        table.AddColumn (TableColumn("Index").Centered ())
-        |> ignore
-
-        table.AddColumn (TableColumn ("Title")) |> ignore
-
-        table.AddColumn (TableColumn ("Duration"))
-        |> ignore
-
-        table.AddColumn (TableColumn("Date").Centered ())
-        |> ignore
-
-        metadata.Videos
-        |> List.sortBy (fun v -> v.PublishedAt)
-        |> List.iteri (fun i v ->
-            let isoString = DateTime.isoString v.PublishedAt
-
-            let duration =
-                VideoDetails.duration v
-                |> TimeSpan.hourMinuteSecond
-
-            table.AddRow ($"%3i{i + 1}", v.Title, duration, isoString)
-            |> ignore
-        )
-
-        AnsiConsole.Write table
-
-        Markup.printn "[bold underline]Choose[/] which videos you want to download by specifying their [yellow bold underline]index[/]"
-
-        Markup.printn
-            "Separate the entries with [yellow bold],[/] and use [yellow bold]-[/] to specify a range ([italic]e.g.: \"1, 3-7, 10\"[/])"
+        "[bold underline]Choose[/] which videos you want to download by specifying their [yellow bold underline]index[/]\n"
+        + "Separate the entries with [yellow bold],[/] and use [yellow bold]-[/] to specify a range ([italic]e.g.: \"1, 3-7, 10\"[/])"
+        |> Markup.printn
 
         // TODO uhm Ctrl+C after this doesn't work. also happens with plain C#/F# app Console.ReadLine...
         let selection =
-            let prompt = TextPrompt("Download > ")
-            prompt.Validate(fun input ->
-                let allowedMax =
-                    List.length metadata.Videos
-                let valid =
-                    isValidAndInAllowedRange (allowedMax, 1) input
-                let errorAnnouncement =
-                    ":collision: [bold red]Uh oh![/]"
-                match valid with
-                | Valid -> ValidationResult.Success()
-                | InvalidTokens e ->
-                    let tokens =
-                        e
-                        |> List.map (fun e -> $"[italic]%s{e}[/]")
-                        |> String.concat ", "
-                    ValidationResult.Error($"%s{errorAnnouncement} [bold]Wasn't able to parse your input.[/]\nThe following tokens were invalid: %s{tokens}")
-                | MaxValue i ->
-                    ValidationResult.Error($"%s{errorAnnouncement} The number %i{i} is higher than the allowed: %i{allowedMax}")
-                | MinValue i ->
-                    ValidationResult.Error($"%s{errorAnnouncement} The number %i{i} is lower than 0")
-            )
-            |> ignore
-            AnsiConsole.Prompt prompt
+            List.length metadata.Videos
+            |> getSelectionInputFromPrompt
+
         let videoIndexes =
             selection
             |> ParseSelection.tryParseSelection
             |> function
                 | Ok i -> i
-                | Error _ ->
+                | Error e ->
                     // This won't happen as the results were validated beforehand
-                    failwith "Error in Parsing the selection"
+                    failwith $"Error in parsing the selection for tokens %A{e}"
+
         printfn "%A" videoIndexes
 
         return ()
