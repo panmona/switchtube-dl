@@ -34,7 +34,7 @@ let private channelDetails token channelId =
         Authorization (tokenHeader token)
     }
 
-// TODO I misread doc somehow! This endpoint uses pagination so I need to gather that code again.
+// TODO I misread doc somehow! This endpoint uses pagination so I need to gather that code again. For example channel: 34621167
 let private channelVideos token channelId =
     httpAsync {
         GET $"%s{apiPrefix}/browse/channels/%s{channelId}/videos"

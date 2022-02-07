@@ -5,4 +5,5 @@ open System
 let fromMilliseconds millis =
     float millis |> TimeSpan.FromMilliseconds
 
-// TODO functions for human readable
+let hourMinuteSecond (span: TimeSpan) =
+    span.ToString("hh\:mm\:ss")
