@@ -32,6 +32,7 @@
     <Compile Include="Cli\ArgParse.fs" />
     <Compile Include="ParseSelection.fs" />
     <Compile Include="DownloadVideo.fs" />
+    <Compile Include="DownloadChannel.fs" />
     <Compile Include="Download.fs" />
     <Compile Include="Program.fs" />
   </ItemGroup>

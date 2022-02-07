@@ -6,15 +6,10 @@ let promptWithValidation msg validator =
     let prompt = TextPrompt msg
 
     let validation =
-        let toUnelevated =
-            function
-            | Ok x
-            | Error x -> x
-
         validator
-        >> Result.map ValidationResult.Success
-        >> Result.mapError (fun r -> ValidationResult.Error r)
-        >> toUnelevated
+        >> function
+            | Ok () -> ValidationResult.Success ()
+            | Error msg -> ValidationResult.Error msg
 
     prompt.Validate validation |> ignore
 
