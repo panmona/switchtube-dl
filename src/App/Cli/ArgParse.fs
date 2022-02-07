@@ -4,36 +4,13 @@ open Argu
 
 open TubeDl
 open TubeDl.Cli
-open TubeDl.HandleFiles
-
-[<RequireQualifiedAccess>]
-type ExecutionType =
-    | Config of ParseResults<ConfigArgs>
-    | Download of ParseResults<DownloadArgs>
-
-module CliArgParse =
-    let tryGetExecutionType (results : ParseResults<CliArgs>) =
-        let cfg = results.Contains CliArgs.Config
-        let dl = results.Contains CliArgs.Dl
-
-        match cfg, dl with
-        | true, false ->
-            results.GetResult CliArgs.Config
-            |> ExecutionType.Config
-            |> Some
-        | false, true ->
-            results.GetResult CliArgs.Dl
-            |> ExecutionType.Download
-            |> Some
-        | _ -> None
 
 [<RequireQualifiedAccess>]
 type DownloadType =
     | Channel of Id: string
     | Video of Id: string
-    | Url of Url: string
 
-type DownloadCmdCfg =
+type CliCfg =
     {
         DownloadType : DownloadType
         Token : Api.Token
@@ -41,39 +18,34 @@ type DownloadCmdCfg =
         OverwriteFile : OverwriteFile
     }
 
-type DownloadCmdCfgParseResult =
-    | Success of DownloadCmdCfg
+type CfgParseResult =
+    | Success of CliCfg
     | DownloadTypeMissing
     | InvalidPath
 
-module DownloadArgParse =
+module CliArgParse =
     // If all of these would be their separate subcommands this wouldn't be required.
     // But that has a usability tradeoff for the user.
     // Especially as a specific help message currently can't be written to subcommand.
-    let tryGetDownloadType (results : ParseResults<DownloadArgs>) =
-        let channel = results.Contains DownloadArgs.Channel
-        let video = results.Contains DownloadArgs.Video
-        let url = results.Contains DownloadArgs.Url
+    let tryGetDownloadType (results : ParseResults<CliArgs>) =
+        let channel = results.Contains CliArgs.Channel
+        let video = results.Contains CliArgs.Video
 
-        match video, channel, url with
-        | true, _, _ ->
-            results.GetResult DownloadArgs.Video
+        match video, channel with
+        | true, _ ->
+            results.GetResult CliArgs.Video
             |> DownloadType.Video
             |> Some
-        | _, true, _ ->
-            results.GetResult DownloadArgs.Channel
+        | _, true ->
+            results.GetResult CliArgs.Channel
             |> DownloadType.Channel
             |> Some
-        | _, _, true ->
-            results.GetResult DownloadArgs.Url
-            |> DownloadType.Url
-            |> Some
-        | false, false, false -> None
+        | false, false -> None
 
-    let tryGetPath (results : ParseResults<DownloadArgs>) =
-        match results.Contains DownloadArgs.Path with
+    let tryGetPath (results : ParseResults<CliArgs>) =
+        match results.Contains CliArgs.Path with
         | true ->
-            let path = results.GetResult DownloadArgs.Path
+            let path = results.GetResult CliArgs.Path
 
             match Path.isFullyQualified path with
             | true -> Some path
@@ -81,12 +53,13 @@ module DownloadArgParse =
         | false -> Env.workingDir |> Some
 
     let initCfgFromArgs results =
+        // TODO maybe use result {} computation expression
         let dlTypeOpt = tryGetDownloadType results
-        let token = results.GetResult DownloadArgs.Token // Mandatory argument, safe to call this.
+        let token = results.GetResult CliArgs.Token // Mandatory argument, safe to call this.
         let pathOpt = tryGetPath results
 
         let overwrite =
-            match results.Contains DownloadArgs.Force with
+            match results.Contains CliArgs.Force with
             | true -> OverwriteFile.Overwrite
             | false -> OverwriteFile.KeepAsIs
 

@@ -1,11 +1,11 @@
-module TubeDl.StatusContext
+module TubeDl.Rich.StatusContext
 
 open Spectre.Console
 
-let spinner ctx spinner =
+let setSpinner ctx spinner =
     StatusContextExtensions.Spinner (ctx, spinner)
     |> ignore
 
-let status ctx msg =
+let setStatus ctx msg =
     StatusContextExtensions.Status (ctx, msg)
     |> ignore

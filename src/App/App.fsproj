@@ -19,12 +19,14 @@
     <Compile Include="Api\Decode.fs" />
     <Compile Include="TubeInfo.fs" />
     <Compile Include="HandleFiles.fs" />
-    <Compile Include="Spectre\StatusContext.fs" />
-    <Compile Include="Cli\Constants.fs" />
+    <Compile Include="Rich\Status.fs" />
+    <Compile Include="Rich\StatusContext.fs" />
+    <Compile Include="Rich\Markup.fs" />
     <Compile Include="Cli\CliError.fs" />
     <Compile Include="Cli\Cli.fs" />
     <Compile Include="Cli\ArgParse.fs" />
-    <Compile Include="DownloadCmd.fs" />
+    <Compile Include="DownloadVideo.fs" />
+    <Compile Include="Download.fs" />
     <Compile Include="Program.fs" />
   </ItemGroup>
 
