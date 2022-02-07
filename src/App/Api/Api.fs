@@ -3,6 +3,8 @@ module TubeDl.Api
 open FsHttp
 open FsHttp.DslCE
 
+type Token = | Token of string
+
 [<RequireQualifiedAccess>]
 type RequestType =
     | ChannelDetails
@@ -23,31 +25,32 @@ type ApiError =
 
 let private baseUrl = "https://tube.switch.ch"
 let private apiPrefix = $"%s{baseUrl}/api/v1"
-let private tokenHeader token = $"Token %s{token}"
+let private tokenHeader (Token token) = $"Token %s{token}"
 
 let private channelDetails token channelId =
-    http {
+    httpAsync {
         GET $"%s{apiPrefix}/browse/channels/%s{channelId}"
         CacheControl "no-cache"
         Authorization (tokenHeader token)
     }
 
+// TODO I misread doc somehow! This endpoint uses pagination so I need to gather that code again.
 let private channelVideos token channelId =
-    http {
+    httpAsync {
         GET $"%s{apiPrefix}/browse/channels/%s{channelId}/videos"
         CacheControl "no-cache"
         Authorization (tokenHeader token)
     }
 
 let private videoDetails token videoId =
-    http {
+    httpAsync {
         GET $"%s{apiPrefix}/browse/videos/%s{videoId}"
         CacheControl "no-cache"
         Authorization (tokenHeader token)
     }
 
 let private videoPaths token videoId =
-    http {
+    httpAsync {
         GET $"%s{apiPrefix}/browse/videos/%s{videoId}/video_variants"
         CacheControl "no-cache"
         Authorization (tokenHeader token)
@@ -59,7 +62,7 @@ let private downloadVideo _token relativeAssetPath =
         Uri.initRelative baseUrl relativeAssetPath
         |> Uri.absoluteUri
 
-    http {
+    httpAsync {
         GET uri
         CacheControl "no-cache"
     }
@@ -83,9 +86,12 @@ let private handleResult (response : Response) =
     | System.Net.HttpStatusCode.InternalServerError
     | _ -> Error ApiError
 
-let api requestType token =
-    request requestType token >> handleResult
+let api requestType token param =
+    async {
+        let! res = request requestType token param
+        return handleResult res
+    }
 
-let toStream = Response.toStream
+let toStream = Response.toStreamAsync
 
-let toText = Response.toText
+let toText = Response.toTextAsync

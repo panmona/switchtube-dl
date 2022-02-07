@@ -4,7 +4,7 @@ open Thoth.Json.Net
 
 let channelDetails = Decode.fromString ChannelDetails.decoder
 
-let channelVideos = Decode.fromString (Decode.list ChannelVideo.decoder)
+let channelVideos = Decode.fromString (Decode.list VideoDetails.decoder)
 
 let videoDetails = Decode.fromString VideoDetails.decoder
 

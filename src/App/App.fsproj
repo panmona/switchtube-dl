@@ -18,8 +18,8 @@
     <Compile Include="Api\Api.fs" />
     <Compile Include="Api\Decode.fs" />
     <Compile Include="TubeInfo.fs" />
-    <Compile Include="FileHandling.fs" />
-    <Compile Include="Idk.fs" />
+    <Compile Include="HandleFiles.fs" />
+    <Compile Include="Spectre\StatusContext.fs" />
     <Compile Include="Cli\Constants.fs" />
     <Compile Include="Cli\CliError.fs" />
     <Compile Include="Cli\Cli.fs" />
@@ -30,8 +30,8 @@
 
   <ItemGroup>
     <PackageReference Include="Argu" Version="6.1.1" />
-    <PackageReference Include="FSharpx.Extras" Version="3.0.0" />
     <PackageReference Include="FsHttp" Version="7.0.0" />
+    <PackageReference Include="FsToolkit.ErrorHandling" Version="2.13.0" />
     <PackageReference Include="Microsoft.FSharpLu" Version="0.11.7" />
     <PackageReference Include="Spectre.Console" Version="0.43.0" />
     <PackageReference Include="Thoth.Json.Net" Version="8.0.0" />

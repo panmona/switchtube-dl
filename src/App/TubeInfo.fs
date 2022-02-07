@@ -1,63 +1,80 @@
-module TubeDl.TubeInfo
+namespace TubeDl
+
+open FsToolkit.ErrorHandling
 
 [<RequireQualifiedAccess>]
 type TubeInfoError =
     | ApiError of Api.ApiError
     | DecodeError of string
 
-let videoInfo token videoId =
-    let apiRes = Api.api Api.RequestType.VideoDetails token videoId
+module TubeInfo =
+    let private mapApiError =
+        AsyncResult.mapError TubeInfoError.ApiError
 
-    match apiRes with
-    | Ok response ->
-        Api.toText response
-        |> Decode.videoDetails
-        |> Result.mapError TubeInfoError.DecodeError
-    | Error e -> TubeInfoError.ApiError e |> Error
+    let videoInfo token videoId =
+        asyncResult {
+            let! response =
+                Api.api Api.RequestType.VideoDetails token videoId
+                |> mapApiError
 
-let pathForVideo token videoId =
-    let apiRes = Api.api Api.RequestType.VideoPaths token videoId
+            let! txt = Api.toText response
 
-    match apiRes with
-    | Ok response ->
-        Api.toText response
-        |> Decode.videoPaths
-        |> Result.map List.head
-        |> Result.mapError TubeInfoError.DecodeError
-    | Error e -> TubeInfoError.ApiError e |> Error
+            return!
+                Decode.videoDetails txt
+                |> Result.mapError TubeInfoError.DecodeError
+        }
 
-let pathsForVideos token videoIds =
-    videoIds |> List.map (pathForVideo token)
+    let pathForVideo token videoId =
+        asyncResult {
+            let! response =
+                Api.api Api.RequestType.VideoPaths token videoId
+                |> mapApiError
 
-let channelInfo token channelId =
-    let apiRes = Api.api Api.RequestType.ChannelDetails token channelId
+            let! txt = Api.toText response
 
-    let stripHtml inputStr =
-        // Be careful before copying this! This pattern won't work for all cases! (https://stackoverflow.com/a/4878506)
-        let pattern = "<.*?>"
-        System.Text.RegularExpressions.Regex.Replace (inputStr, pattern, "")
+            return!
+                Decode.videoPaths txt
+                |> Result.map List.head
+                |> Result.mapError TubeInfoError.DecodeError
+        }
 
-    match apiRes with
-    | Ok response ->
-        Api.toText response
-        |> Decode.channelDetails
-        |> Result.map (fun c -> c.Name, stripHtml c.Description)
-        |> Result.mapError TubeInfoError.DecodeError
-    | Error e -> TubeInfoError.ApiError e |> Error
+    let channelInfo token channelId =
+        asyncResult {
+            let! response =
+                Api.api Api.RequestType.ChannelDetails token channelId
+                |> mapApiError
 
-let channelVideos token channelId =
-    let apiRes = Api.api Api.RequestType.ChannelVideos token channelId
+            let stripHtml inputStr =
+                // Be careful before copying this! This pattern won't work for all cases! (https://stackoverflow.com/a/4878506)
+                let pattern = "<.*?>"
+                System.Text.RegularExpressions.Regex.Replace (inputStr, pattern, "")
 
-    match apiRes with
-    | Ok response ->
-        Api.toText response
-        |> Decode.channelVideos
-        |> Result.mapError TubeInfoError.DecodeError
-    | Error e -> TubeInfoError.ApiError e |> Error
+            let! txt = Api.toText response
 
-let downloadVideo token path =
-    let apiRes = Api.api Api.RequestType.DownloadVideo token path
+            return!
+                Decode.channelDetails txt
+                |> Result.map (fun c -> c.Name, stripHtml c.Description)
+                |> Result.mapError TubeInfoError.DecodeError
+        }
 
-    match apiRes with
-    | Ok response -> Api.toStream response |> Ok
-    | Error e -> TubeInfoError.ApiError e |> Error
+    let channelVideos token channelId =
+        asyncResult {
+            let! response =
+                Api.api Api.RequestType.ChannelVideos token channelId
+                |> mapApiError
+
+            let! txt = Api.toText response
+
+            return!
+                Decode.channelVideos txt
+                |> Result.mapError TubeInfoError.DecodeError
+        }
+
+    let downloadVideo token path =
+        asyncResult {
+            let! response =
+                Api.api Api.RequestType.DownloadVideo token path
+                |> mapApiError
+
+            return! Api.toStream response
+        }

@@ -4,7 +4,7 @@ open Argu
 
 open TubeDl
 open TubeDl.Cli
-open TubeDl.FileHandling
+open TubeDl.HandleFiles
 
 [<RequireQualifiedAccess>]
 type ExecutionType =
@@ -33,15 +33,18 @@ type DownloadType =
     | Video of Id: string
     | Url of Url: string
 
-type Token = | Token of string
-
 type DownloadCmdCfg =
     {
         DownloadType : DownloadType
-        Token : Token
+        Token : Api.Token
         Path : string
         OverwriteFile : OverwriteFile
     }
+
+type DownloadCmdCfgParseResult =
+    | Success of DownloadCmdCfg
+    | DownloadTypeMissing
+    | InvalidPath
 
 module DownloadArgParse =
     // If all of these would be their separate subcommands this wouldn't be required.
@@ -77,7 +80,6 @@ module DownloadArgParse =
             | false -> None
         | false -> Env.workingDir |> Some
 
-    /// This function is unsafe! Verify the different arguments first.
     let initCfgFromArgs results =
         let dlTypeOpt = tryGetDownloadType results
         let token = results.GetResult DownloadArgs.Token // Mandatory argument, safe to call this.
@@ -88,9 +90,16 @@ module DownloadArgParse =
             | true -> OverwriteFile.Overwrite
             | false -> OverwriteFile.KeepAsIs
 
-        {
-            DownloadType = dlTypeOpt.Value
-            Token = Token token
-            Path = pathOpt.Value
-            OverwriteFile = overwrite
-        }
+        match dlTypeOpt, pathOpt with
+        | Some dlType, Some pathOpt ->
+            {
+                DownloadType = dlType
+                Token = Api.Token token
+                Path = pathOpt
+                OverwriteFile = overwrite
+            }
+            |> Success
+        | None, _ ->
+            DownloadTypeMissing
+        | _, None ->
+            InvalidPath
