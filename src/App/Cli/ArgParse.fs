@@ -1,14 +1,15 @@
 namespace TubeDl.Cli
 
 open Argu
+open FsToolkit.ErrorHandling
 
 open TubeDl
 open TubeDl.Cli
 
 [<RequireQualifiedAccess>]
 type DownloadType =
-    | Channel of Id: string
-    | Video of Id: string
+    | Channel of Id : string
+    | Video of Id : string
 
 type CliCfg =
     {
@@ -18,10 +19,9 @@ type CliCfg =
         OverwriteFile : OverwriteFile
     }
 
-type CfgParseResult =
-    | Success of CliCfg
-    | DownloadTypeMissing
+type CfgParseError =
     | InvalidPath
+    | DownloadTypeMissing
 
 module CliArgParse =
     // If all of these would be their separate subcommands this wouldn't be required.
@@ -35,12 +35,12 @@ module CliArgParse =
         | true, _ ->
             results.GetResult CliArgs.Video
             |> DownloadType.Video
-            |> Some
+            |> Ok
         | _, true ->
             results.GetResult CliArgs.Channel
             |> DownloadType.Channel
-            |> Some
-        | false, false -> None
+            |> Ok
+        | false, false -> Error DownloadTypeMissing
 
     let tryGetPath (results : ParseResults<CliArgs>) =
         match results.Contains CliArgs.Path with
@@ -48,31 +48,28 @@ module CliArgParse =
             let path = results.GetResult CliArgs.Path
 
             match Path.isFullyQualified path with
-            | true -> Some path
-            | false -> None
-        | false -> Env.workingDir |> Some
+            | true -> Ok path
+            | false -> Error InvalidPath
+        | false -> Env.workingDir |> Ok
 
     let initCfgFromArgs results =
-        // TODO maybe use result {} computation expression
-        let dlTypeOpt = tryGetDownloadType results
-        let token = results.GetResult CliArgs.Token // Mandatory argument, safe to call this.
-        let pathOpt = tryGetPath results
+        result {
+            let! dlType = tryGetDownloadType results
+            let token = results.GetResult CliArgs.Token // Mandatory argument, safe to call this.
+            let! path = tryGetPath results
 
-        let overwrite =
-            match results.Contains CliArgs.Force with
-            | true -> OverwriteFile.Overwrite
-            | false -> OverwriteFile.KeepAsIs
+            let overwrite =
+                match results.Contains CliArgs.Force with
+                | true -> OverwriteFile.Overwrite
+                | false -> OverwriteFile.KeepAsIs
 
-        match dlTypeOpt, pathOpt with
-        | Some dlType, Some pathOpt ->
-            {
-                DownloadType = dlType
-                Token = Api.Token token
-                Path = pathOpt
-                OverwriteFile = overwrite
-            }
-            |> Success
-        | None, _ ->
-            DownloadTypeMissing
-        | _, None ->
-            InvalidPath
+            let cfg =
+                {
+                    DownloadType = dlType
+                    Token = Api.Token token
+                    Path = path
+                    OverwriteFile = overwrite
+                }
+
+            return cfg
+        }

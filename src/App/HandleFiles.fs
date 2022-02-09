@@ -51,7 +51,6 @@ module HandleFiles =
             | '.' -> true
             | _ -> false
 
-        // TODO replace - with empty
         let replaceSpace =
             function
             | ' ' -> '_'
@@ -70,7 +69,6 @@ module HandleFiles =
 
     let private saveFile (FullPath fullPath) (stream : Stream) =
         asyncResult {
-            // TODO handle exceptions
             use! file =
                 try
                     File.Create fullPath |> Ok
@@ -80,8 +78,15 @@ module HandleFiles =
                 | :? IOException -> Error SaveFileError.IOError
                 | :? System.NotSupportedException -> Error (SaveFileError.InvalidPath fullPath)
 
-            let _ =
-                stream.CopyToAsync file |> Async.AwaitTask
+            let! _ =
+                try
+                    stream.CopyToAsync file
+                    |> Async.AwaitTask
+                    |> Ok
+                with
+                | :? IOException
+                | :? System.ObjectDisposedException
+                | :? System.Threading.Tasks.TaskCanceledException -> Error SaveFileError.IOError
 
             return fullPath
         }
@@ -100,7 +105,6 @@ module HandleFiles =
             let extension = MediaType.extension videoPath.MediaType
             let name = validFileName videoDetails.Title
             $"%s{name}.%s{extension}"
-        // TODO handle possible exceptions
 
         Path.combine basePath fileName |> FullPath
 

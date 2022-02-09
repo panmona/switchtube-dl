@@ -3,6 +3,7 @@
 open Argu
 
 open TubeDl.Cli
+open TubeDl.Download
 
 [<EntryPoint>]
 let main argv =

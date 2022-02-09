@@ -20,4 +20,3 @@ type CliArgs =
 
 // TODO add date options
 // TODO add -a, --skip
-// TODO implement all these different switches properly
