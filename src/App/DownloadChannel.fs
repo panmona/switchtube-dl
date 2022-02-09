@@ -8,11 +8,45 @@ open TubeDl.Cli
 open TubeDl.ParseSelection
 open TubeDl.Rich
 
+// TODO better unify error types if possible
 type ChannelDownloadError =
-    | ApiError of TubeInfoError
+    | TubeInfoError of TubeInfoError
     | SaveFileError of SaveFileError
     | VideoDownloadError of DownloadVideo.VideoDownloadError
 
+module ChannelDownloadError =
+    let (|ApiError|_|) = function
+        | TubeInfoError (TubeInfoError.ApiError e)
+        | VideoDownloadError (DownloadVideo.VideoDownloadError.ApiError e) -> Some e
+        | _ -> None
+
+    let errorMessage cfg error =
+        match error with
+        | ApiError Api.UnauthorizedAccess ->
+            "A valid token needs to be provided."
+        | ApiError Api.ResourceNotFound ->
+            "An existing channel id needs to be provided."
+        | ApiError Api.TooManyRequests
+        | ApiError Api.ApiError ->
+            "SwitchTube encountered an error, please try again later."
+        | TubeInfoError (TubeInfoError.DecodeError s)
+        | VideoDownloadError (DownloadVideo.VideoDownloadError.TubeInfoError (TubeInfoError.DecodeError s)) ->
+            "There was an error while decoding the JSON received from the API.\n" +
+            $"%s{GitHub.createIssue} with the following info:\n" +
+            $"[italic]%s{s}[/]"
+        | SaveFileError SaveFileError.AccessDenied ->
+            $"Wasn't able to write a file to the path %s{cfg.Path}. Please ensure that the path is writable."
+        | SaveFileError SaveFileError.FileExists ->
+            $"The video exists already in the path %s{cfg.Path}. If you want to overwrite it, use the option [bold yellow]-f[/]."
+        | SaveFileError (SaveFileError.InvalidPath path) ->
+            $"Wasn't able to save the video to the following invalid path: [italic]%s{path}[/]." +
+            $"If the name of the video file seems to be the cause: %s{GitHub.createIssue}."
+        | SaveFileError SaveFileError.DirNotFound ->
+            "The given path was invalid "
+        | SaveFileError SaveFileError.IOError ->
+            "There was an IO error while saving the file. Please check your path and try again."
+        | e ->
+            $"Wasn't able to correctly determine the error type of [bold red]%A{e}[/]. %s{GitHub.createIssue}."
 type private ChannelMetadata =
     {
         Name : string
@@ -76,12 +110,13 @@ let private getSelectionInputFromPrompt max =
 
     TextPrompt.promptWithValidation "Download >" validation
 
-let private downloadVideos cfg (videos : VideoDetails list) =
+let private downloadVideos cfg logCallback (videos : VideoDetails list) =
     async {
         let handleDownload v =
             asyncResult {
+                let prefilledCallback = logCallback v.Title
                 return!
-                    DownloadVideo.handleDownload (fun _ -> ()) cfg v
+                    DownloadVideo.handleDownload prefilledCallback cfg v
                     |> AsyncResult.mapError ChannelDownloadError.VideoDownloadError
             }
 
@@ -115,9 +150,9 @@ let runDownloadChannel cfg id =
             |> AsyncResult.teeError (fun e ->
                 Markup.printn $":collision: [red][bold]Failure![/] The error [bold]%A{e}[/] occured[/]"
             )
-            |> AsyncResult.mapError ChannelDownloadError.ApiError
+            |> AsyncResult.mapError ChannelDownloadError.TubeInfoError
 
-        Markup.printn $":sparkles: Found the following videos for channel [bold underline]%s{metadata.Name}[/]:"
+        Markup.printn $":sparkles: Found the following videos for channel [yellow bold underline]%s{metadata.Name}[/]:"
         printMetadataTable metadata
 
         "[bold underline]Choose[/] which videos you want to download by specifying their [yellow bold underline]index[/]\n"
@@ -144,9 +179,22 @@ let runDownloadChannel cfg id =
             |> List.filter (fun (i, _) -> List.contains i videoIndexes)
             |> List.map snd
 
-        let! _ = downloadVideos cfg videosToDownload
+        let callback _ctx =
+            task {
+                let showFinishedStep video (step : DownloadVideo.FinishedStep) =
+                    match step with
+                    | DownloadVideo.Metadata ->
+                        Markup.log $"Received video [yellow bold]metadata[/] of \"[italic]%s{video}[/]\""
+                    | DownloadVideo.Download -> Markup.log $"Received video [yellow bold]file[/] of \"[italic]%s{video}[/]\""
+                    | DownloadVideo.FileHandling -> Markup.log $"[yellow bold]Saved file[/] of \"[italic]%s{video}[/]\""
 
-        // TODO add callbacks: do just the logs -> Fetched video data for ... , Saved video ...
+                return
+                    downloadVideos cfg showFinishedStep videosToDownload
+                    |> Async.RunSynchronously
+            }
 
-        return ()
+        let! _ = Status.start Spinner.Known.BouncingBar $"[bold blue]Downloading videos of channel [yellow underline]%s{metadata.Name}[/][/]" callback
+
+        Markup.printn
+            $":popcorn: [bold green]Success![/] The requested videos of channel [yellow bold]%s{metadata.Name}[/] were downloaded to [italic]%s{cfg.Path}[/]"
     }

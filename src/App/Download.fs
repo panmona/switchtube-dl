@@ -21,16 +21,21 @@ let runDownload res =
         Error (ArgumentsNotSpecified "")
     | Success cfg ->
 
+    // TODO test if given path is writable!
+
     // TODO async expression and proper error handling
+    let errorLog e =
+        Markup.printn $":collision: [bold red]Failure![/] [red]The error [bold]%A{e}[/] occured[/]"
     match cfg.DownloadType with
     | DownloadType.Video id ->
         DownloadVideo.runDownloadVideo cfg id
         |> Async.RunSynchronously
+        |> Result.teeError errorLog
         |> ignore
     | DownloadType.Channel id ->
-        let res =
-            DownloadChannel.runDownloadChannel cfg id
-            |> Async.RunSynchronously
-        printfn "%A" res
+        DownloadChannel.runDownloadChannel cfg id
+        |> Async.RunSynchronously
+        |> Result.teeError errorLog
+        |> ignore
 
     Ok ()

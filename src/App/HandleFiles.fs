@@ -2,6 +2,7 @@ namespace TubeDl
 
 open System.IO
 open FsHttp.Helper
+open FsToolkit.ErrorHandling
 open Microsoft.FSharpLu
 
 [<RequireQualifiedAccess>]
@@ -10,7 +11,14 @@ type OverwriteFile =
     | Overwrite
 
 [<RequireQualifiedAccess>]
-type SaveFileError = | FileExists
+type SaveFileError =
+    | FileExists
+    | AccessDenied
+    | DirNotFound
+    | IOError
+    | InvalidPath of FullPath: string
+
+type FullPath = | FullPath of string
 
 module HandleFiles =
     let private validFileName str =
@@ -37,6 +45,12 @@ module HandleFiles =
             ]
             |> List.contains c
 
+        let isSuboptimalChar =
+            function
+            | '-'
+            | '.' -> true
+            | _ -> false
+
         // TODO replace - with empty
         let replaceSpace =
             function
@@ -46,39 +60,50 @@ module HandleFiles =
         str
         |> String.normalize
         |> String.toCharArray
-        |> Array.filter (fun c -> Char.nonSpacingMark c && isInvalidChar c |> not)
+        |> Array.filter (fun c ->
+            Char.nonSpacingMark c
+            && not (isInvalidChar c)
+            && not (isSuboptimalChar c)
+        )
         |> Array.map replaceSpace
         |> System.String
 
-    let private saveFile fullPath (stream : Stream) =
-        async {
+    let private saveFile (FullPath fullPath) (stream : Stream) =
+        asyncResult {
             // TODO handle exceptions
-            use file = File.Create fullPath
-            // TODO use async version?
-            do! stream.CopyToAsync file |> Async.AwaitTask
-            return Ok ()
+            use! file =
+                try
+                    File.Create fullPath |> Ok
+                with
+                | :? System.UnauthorizedAccessException -> Error SaveFileError.AccessDenied
+                | :? DirectoryNotFoundException -> Error SaveFileError.DirNotFound
+                | :? IOException -> Error SaveFileError.IOError
+                | :? System.NotSupportedException -> Error (SaveFileError.InvalidPath fullPath)
+
+            let _ =
+                stream.CopyToAsync file |> Async.AwaitTask
+
+            return fullPath
         }
 
-    let private saveFileFromStream overwrite fullPath stream =
+    let private saveFileFromStream overwrite (FullPath fullPath) stream =
         async {
             match File.Exists fullPath, overwrite with
             | true, OverwriteFile.KeepAsIs -> return Error SaveFileError.FileExists
             | true, OverwriteFile.Overwrite
-            | false, _ -> return! saveFile fullPath stream
+            | false, _ -> return! saveFile (FullPath fullPath) stream
         }
 
-    let saveVideo overwrite basePath videoDetails videoPath stream =
+    let fullPath basePath videoDetails videoPath =
         let fileName =
             // TODO add episode handling
             let extension = MediaType.extension videoPath.MediaType
             let name = validFileName videoDetails.Title
             $"%s{name}.%s{extension}"
+        // TODO handle possible exceptions
 
-        let path =
-            // TODO handle possible exceptions
+        Path.combine basePath fileName |> FullPath
 
-            // TODO this doesn't fully work yet? it seems to always remove one level!
-            let dirPath = FileInfo(basePath).Directory.FullName
-            Path.combine dirPath fileName
-
+    let saveVideo overwrite basePath videoDetails videoPath stream =
+        let path = fullPath basePath videoDetails videoPath
         saveFileFromStream overwrite path stream

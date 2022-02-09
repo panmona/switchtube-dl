@@ -14,7 +14,6 @@
     <Compile Include="Interop\Char.fs" />
     <Compile Include="Interop\Env.fs" />
     <Compile Include="Interop\DateTime.fs" />
-    <Compile Include="Interop\Console.fs" />
     <Compile Include="List.fs" />
     <Compile Include="Int.fs" />
     <Compile Include="Api\Entities.fs" />
@@ -31,6 +30,7 @@
     <Compile Include="Cli\Cli.fs" />
     <Compile Include="Cli\ArgParse.fs" />
     <Compile Include="ParseSelection.fs" />
+    <Compile Include="GitHub.fs" />
     <Compile Include="DownloadVideo.fs" />
     <Compile Include="DownloadChannel.fs" />
     <Compile Include="Download.fs" />

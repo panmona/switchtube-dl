@@ -6,7 +6,7 @@ let setSpinner status spinner =
     StatusExtensions.Spinner (status, spinner)
     |> ignore
 
-let start msg spinner callbackTask =
+let start spinner msg callbackTask =
     let status = AnsiConsole.Status ()
     setSpinner status spinner
 
@@ -14,4 +14,4 @@ let start msg spinner callbackTask =
     |> Async.AwaitTask
 
 let startDefault msg callbackTask =
-    start msg Spinner.Known.Default callbackTask
+    start Spinner.Known.Default msg callbackTask
