@@ -77,8 +77,7 @@ let private downloadVideos cfg logCallback (videos : VideoDetails list) =
         let handleDownload v =
             asyncResult {
                 let prefilledCallback = logCallback v.Title
-                return!
-                    DownloadVideo.handleDownload prefilledCallback cfg v
+                return! DownloadVideo.handleDownload prefilledCallback cfg v
             }
 
         let! allRes =
@@ -146,15 +145,23 @@ let runDownloadChannel cfg id =
                     match step with
                     | FinishedDlStep.Metadata ->
                         Markup.log $"Received video [yellow bold]metadata[/] of \"[italic]%s{video}[/]\""
-                    | FinishedDlStep.Download -> Markup.log $"Received video [yellow bold]file[/] of \"[italic]%s{video}[/]\""
-                    | FinishedDlStep.FileHandling -> Markup.log $"[yellow bold]Saved file[/] of \"[italic]%s{video}[/]\""
+                    | FinishedDlStep.Download ->
+                        Markup.log $"Received video [yellow bold]file[/] \"[italic]%s{video}[/]\""
+                    | FinishedDlStep.FileHandling path ->
+
+                    let fileName = FullPath.last path
+                    Markup.log $"[yellow bold]Saved file[/] \"[italic]%s{video}[/]\" as \"[italic]%s{fileName}[/]\""
 
                 return
                     downloadVideos cfg showFinishedStep videosToDownload
                     |> Async.RunSynchronously
             }
 
-        let! _ = Status.start Spinner.Known.BouncingBar $"[bold blue]Downloading videos of channel [yellow underline]%s{metadata.Name}[/][/]" callback
+        let! _ =
+            Status.start
+                Spinner.Known.BouncingBar
+                $"[bold blue]Downloading videos of channel [yellow underline]%s{metadata.Name}[/][/]"
+                callback
 
         Markup.printn
             $":popcorn: [bold green]Success![/] The requested videos of channel [yellow bold]%s{metadata.Name}[/] were downloaded to [italic]%s{cfg.Path}[/]"

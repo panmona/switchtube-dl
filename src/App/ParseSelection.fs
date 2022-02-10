@@ -9,7 +9,7 @@ let (|Range|_|) str =
     let range = Text.split [| '-' |] str
 
     match range with
-    | [| Int l ; Int r |] when l < r -> Some [ l .. r ]
+    | [| Int l ; Int r |] when l < r -> Some [ l..r ]
     | _ -> None
 
 let private parse tokens =
@@ -35,6 +35,7 @@ let tryParseSelection str =
         String.replace " " "" str
         |> Text.split [| ',' |]
         |> List.ofArray
+
     parse tokens
 
 type ValidationResult =
@@ -45,13 +46,14 @@ type ValidationResult =
 
 let isValidAndInAllowedRange (max, min) str =
     let selRes = tryParseSelection str
+
     match selRes with
     | Ok sel ->
         let selMax = List.max sel
         let selMin = List.min sel
+
         match selMax <= max, selMin >= min with
         | true, true -> Valid
         | false, _ -> MaxValue selMax
         | _, false -> MinValue selMin
-    | Error e ->
-        InvalidTokens e
+    | Error e -> InvalidTokens e

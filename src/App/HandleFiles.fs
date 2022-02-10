@@ -16,9 +16,12 @@ type SaveFileError =
     | AccessDenied
     | DirNotFound
     | IOError
-    | InvalidPath of FullPath: string
+    | InvalidPath of FullPath : string
 
 type FullPath = | FullPath of string
+
+module FullPath =
+    let last (FullPath path) = Text.split [| '/' |] path |> Array.last
 
 module HandleFiles =
     let private validFileName str =
@@ -80,15 +83,13 @@ module HandleFiles =
 
             let! _ =
                 try
-                    stream.CopyToAsync file
-                    |> Async.AwaitTask
-                    |> Ok
+                    stream.CopyToAsync file |> Async.AwaitTask |> Ok
                 with
                 | :? IOException
                 | :? System.ObjectDisposedException
                 | :? System.Threading.Tasks.TaskCanceledException -> Error SaveFileError.IOError
 
-            return fullPath
+            return FullPath fullPath
         }
 
     let private saveFileFromStream overwrite (FullPath fullPath) stream =

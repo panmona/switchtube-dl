@@ -8,8 +8,7 @@ type TubeInfoError =
     | DecodeError of string
 
 module TubeInfo =
-    let private mapApiError =
-        AsyncResult.mapError TubeInfoError.ApiError
+    let private mapApiError = AsyncResult.mapError TubeInfoError.ApiError
 
     let videoInfo token videoId =
         asyncResult {

@@ -10,7 +10,7 @@ let start spinner msg callbackTask =
     let status = AnsiConsole.Status ()
     setSpinner status spinner
 
-    status.StartAsync(msg, func=callbackTask)
+    status.StartAsync (msg, func = callbackTask)
     |> Async.AwaitTask
 
 let startDefault msg callbackTask =

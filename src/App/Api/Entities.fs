@@ -43,7 +43,7 @@ type VideoDetails =
         ChannelId : int
         Title : string
         /// API allows any possible string
-        Episode: string option
+        Episode : string option
         PublishedAt : System.DateTimeOffset
         LicenseCode : string
         DurationInMilliseconds : int

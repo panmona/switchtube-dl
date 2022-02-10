@@ -22,13 +22,13 @@ let handleDownload reporter cfg video =
 
         reporter FinishedDlStep.Download
 
-        let! fileName =
+        let! fullPath =
             HandleFiles.saveVideo cfg.OverwriteFile cfg.Path video path stream
             |> AsyncResult.mapError DownloadError.SaveFileError
 
-        reporter FinishedDlStep.FileHandling
+        FinishedDlStep.FileHandling fullPath |> reporter
 
-        return video.Title, fileName
+        return video.Title, fullPath
     }
 
 let handleDownloadFull reporter cfg id =
@@ -51,7 +51,7 @@ let runDownloadVideo cfg id =
                         StatusContext.setSpinner ctx Spinner.Known.BouncingBar
                         StatusContext.setStatus ctx "[bold blue]Fetching video file[/]"
                     | FinishedDlStep.Download -> Markup.log "Received video file"
-                    | FinishedDlStep.FileHandling -> () // Download was finished -> show nothing
+                    | FinishedDlStep.FileHandling _ -> () // Download was finished -> command is finished so show nothing
 
                     StatusContext.setSpinner ctx Spinner.Known.Dots10
                     StatusContext.setStatus ctx "[yellow]Saving video[/]"
@@ -61,7 +61,7 @@ let runDownloadVideo cfg id =
                     |> Async.RunSynchronously
             }
 
-        let! videoTitle, path = Status.startDefault "[yellow]Fetching video metadata[/]" callback
+        let! videoTitle, FullPath path = Status.startDefault "[yellow]Fetching video metadata[/]" callback
 
         $":popcorn: [bold green]Success![/] The video [bold]%s{videoTitle}[/] was downloaded to [italic]%s{path}[/]"
         |> Markup.printn

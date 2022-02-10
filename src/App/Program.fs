@@ -15,11 +15,9 @@ let main argv =
                 | _ -> Some System.ConsoleColor.Red
         )
 
-    let parser =
-        ArgumentParser.Create<CliArgs> (errorHandler = errorHandler)
+    let parser = ArgumentParser.Create<CliArgs> (errorHandler = errorHandler)
 
-    let results =
-        parser.ParseCommandLine (inputs = argv, raiseOnUsage = true)
+    let results = parser.ParseCommandLine (inputs = argv, raiseOnUsage = true)
 
     Download.runDownload results
     |> CliError.getExitCode
