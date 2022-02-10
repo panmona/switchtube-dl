@@ -25,17 +25,6 @@ module ChannelDetails =
             }
         )
 
-type ChannelVideo =
-    {
-        Id : string
-        ProfileId : int
-        ChannelId : int
-        Title : string
-        PublishedAtAt : System.DateTimeOffset
-        LicenseCode : string
-        DurationInMilliseconds : int
-    }
-
 type VideoDetails =
     {
         Id : string

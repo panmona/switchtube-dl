@@ -104,8 +104,13 @@ module HandleFiles =
         let fileName =
             // TODO add episode handling
             let extension = MediaType.extension videoPath.MediaType
+            let episode =
+                videoDetails.Episode
+                |> Option.map validFileName
+                |> Option.map (String.append "_")
+                |> Option.defaultValue ""
             let name = validFileName videoDetails.Title
-            $"%s{name}.%s{extension}"
+            $"%s{episode}%s{name}.%s{extension}"
 
         Path.combine basePath fileName |> FullPath
 

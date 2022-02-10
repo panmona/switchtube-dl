@@ -31,12 +31,17 @@ let private downloadChannelMetadata cfg id =
     }
 
 let private printMetadataTable metadata =
+    let displayEpisode =
+        List.exists (fun v -> Option.isSome v.Episode) metadata.Videos
+
     let columns =
         [
             Table.Column.withAlign "Index" Table.Alignment.Center
             Table.Column.init "Title"
             Table.Column.init "Duration"
             Table.Column.withAlign "Date" Table.Alignment.Center
+            if displayEpisode then
+                Table.Column.withAlign "Episode" Table.Alignment.Center
         ]
 
     let videoToRow v =
@@ -44,6 +49,11 @@ let private printMetadataTable metadata =
             v.Title
             (VideoDetails.duration >> TimeSpan.hourMinuteSecond) v
             DateTime.isoString v.PublishedAt
+            match v.Episode, displayEpisode with
+            | Some ep, true -> $"%3s{ep}"
+            | None, true -> "" // Pad the table
+            | Some _, false // This case shouldn't happen
+            | None, false -> ()
         ]
 
     let rows =
