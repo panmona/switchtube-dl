@@ -1,0 +1,37 @@
+name: ci
+
+on:
+    push:
+        paths-ignore:
+            - 'CHANGELOG.md'
+            - 'README.md'
+    pull_request:
+
+jobs:
+    build:
+        runs-on: windows-latest
+
+        steps:
+            - name: Checkout 🛎️
+              uses: actions/checkout@v2
+
+            - name: Install .NET 6.0 🧳
+              uses: actions/setup-dotnet@v1
+              with:
+                  dotnet-version: '6.0.x'
+
+            - name: Install dependencies 🔌
+              run: dotnet restore src
+
+            - name: Build project 🏗
+              run: dotnet build src -c Release --no-restore
+
+            - name: Publish 🚀
+              if: github.event_name == 'push'
+              run: |
+                  if ( "${{github.ref}}" -match "^refs/tags/[0-9]+\.[0-9]+\.[0-9]+" ) {
+                      dotnet tool install --global dotnet-releaser --version "0.1.*"
+                      dotnet-releaser publish --github-token ${{secrets.TOKEN_GITHUB}} src/dotnet-releaser.toml
+                  } else {
+                      echo "publish is only enabled by tagging with a release tag"
+                  }

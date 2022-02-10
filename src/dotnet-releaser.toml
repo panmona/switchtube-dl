@@ -1,0 +1,15 @@
+# configuration file for dotnet-releaser
+[msbuild]
+project = "App/App.fsproj"
+[github]
+user = "panmau"
+repo = "switchtube-dl"
+
+[nuget]
+publish = false
+
+# TODO turn this on when repository is published
+[brew]
+publish = false
+home = "homebrew-panmau"
+

@@ -7,6 +7,12 @@
       "commands": [
         "fantomas"
       ]
+    },
+    "dotnet-releaser": {
+      "version": "0.1.12",
+      "commands": [
+        "dotnet-releaser"
+      ]
     }
   }
 }
