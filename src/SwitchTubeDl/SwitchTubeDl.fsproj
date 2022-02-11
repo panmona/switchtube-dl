@@ -4,6 +4,7 @@
     <OutputType>Exe</OutputType>
     <TargetFramework>net6.0</TargetFramework>
     <RootNamespace>TubeDl</RootNamespace>
+    <AssemblyName>switchtube-dl</AssemblyName>
   </PropertyGroup>
 
   <ItemGroup>
@@ -39,6 +40,20 @@
   </ItemGroup>
 
   <ItemGroup>
+    <PackageReference Include="MinVer" Version="2.5.0">
+      <PrivateAssets>all</PrivateAssets>
+      <IncludeAssets>runtime; build; native; contentfiles; analyzers; buildtransitive</IncludeAssets>
+    </PackageReference>
+    <ResolvedFileToPublish Include="..\..\README.md">
+        <RelativePath>README.md</RelativePath>
+        <CopyToPublishDirectory>PreserveNewest</CopyToPublishDirectory>
+    </ResolvedFileToPublish>
+
+    <ResolvedFileToPublish Include="..\..\LICENSE">
+        <RelativePath>LICENSE</RelativePath>
+        <CopyToPublishDirectory>PreserveNewest</CopyToPublishDirectory>
+    </ResolvedFileToPublish>
+      
     <PackageReference Include="Argu" Version="6.1.1" />
     <PackageReference Include="FsHttp" Version="7.0.0" />
     <PackageReference Include="FsToolkit.ErrorHandling" Version="2.13.0" />

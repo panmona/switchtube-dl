@@ -1,9 +1,12 @@
 # configuration file for dotnet-releaser
 [msbuild]
-project = "App/App.fsproj"
+project = "SwitchTubeDl/SwitchTubeDl.fsproj"
 [github]
 user = "panmau"
 repo = "switchtube-dl"
+
+[changelog]
+path = "../CHANGELOG.md" # Default config didn't find Changelog
 
 [nuget]
 publish = false

@@ -3,7 +3,7 @@ Microsoft Visual Studio Solution File, Format Version 12.00
 # Visual Studio Version 16
 VisualStudioVersion = 16.0.30114.105
 MinimumVisualStudioVersion = 10.0.40219.1
-Project("{F2A71F9B-5D33-465A-A702-920D77279786}") = "App", "App\App.fsproj", "{99917C34-2818-4165-96EC-3066EC205A89}"
+Project("{F2A71F9B-5D33-465A-A702-920D77279786}") = "SwitchTubeDl", "SwitchTubeDl\SwitchTubeDl.fsproj", "{99917C34-2818-4165-96EC-3066EC205A89}"
 EndProject
 Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "Solution Items", "Solution Items", "{5FA02404-551D-442F-90AC-9DA6E3A22CED}"
 	ProjectSection(SolutionItems) = preProject
@@ -14,6 +14,8 @@ Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "Solution Items", "Solution 
 		dotnet-releaser.toml = dotnet-releaser.toml
 		..\.github\workflows\ci.yml = ..\.github\workflows\ci.yml
 		..\CHANGELOG.md = ..\CHANGELOG.md
+		..\PKGBUILD = ..\PKGBUILD
+		..\RELEASE.md = ..\RELEASE.md
 	EndProjectSection
 EndProject
 Global

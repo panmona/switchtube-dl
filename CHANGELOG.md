@@ -1,5 +1,5 @@
 # Changelog
 
-## 1.0.0
+## 0.0.1
 
-- Test Release of CLI
+- Test the release of the CLI
