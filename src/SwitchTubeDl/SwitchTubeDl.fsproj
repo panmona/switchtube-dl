@@ -1,67 +1,72 @@
 ﻿<Project Sdk="Microsoft.NET.Sdk">
 
-  <PropertyGroup>
-    <OutputType>Exe</OutputType>
-    <TargetFramework>net6.0</TargetFramework>
-    <RootNamespace>TubeDl</RootNamespace>
-    <AssemblyName>switchtube-dl</AssemblyName>
-  </PropertyGroup>
+    <PropertyGroup>
+        <OutputType>Exe</OutputType>
+        <TargetFramework>net6.0</TargetFramework>
+        <RootNamespace>TubeDl</RootNamespace>
+        <AssemblyName>switchtube-dl</AssemblyName>
+    </PropertyGroup>
 
-  <ItemGroup>
-    <Compile Include="Interop\Uri.fs" />
-    <Compile Include="Interop\TimeSpan.fs" />
-    <Compile Include="Interop\String.fs" />
-    <Compile Include="Interop\Path.fs" />
-    <Compile Include="Interop\Char.fs" />
-    <Compile Include="Interop\Env.fs" />
-    <Compile Include="Interop\DateTime.fs" />
-    <Compile Include="List.fs" />
-    <Compile Include="Int.fs" />
-    <Compile Include="Api\Entities.fs" />
-    <Compile Include="Api\Paging.fs" />
-    <Compile Include="Api\Api.fs" />
-    <Compile Include="Api\Decode.fs" />
-    <Compile Include="Folder.fs" />
-    <Compile Include="TubeInfo.fs" />
-    <Compile Include="HandleFiles.fs" />
-    <Compile Include="GitHub.fs" />
-    <Compile Include="Cli\Cli.fs" />
-    <Compile Include="Cli\ArgParse.fs" />
-    <Compile Include="Cli\CliError.fs" />
-    <Compile Include="ParseSelection.fs" />
-    <Compile Include="Rich\Status.fs" />
-    <Compile Include="Rich\StatusContext.fs" />
-    <Compile Include="Rich\Markup.fs" />
-    <Compile Include="Rich\Table.fs" />
-    <Compile Include="Rich\TextPrompt.fs" />
-    <Compile Include="Download\DownloadTypes.fs" />
-    <Compile Include="Download\DownloadVideo.fs" />
-    <Compile Include="Download\DownloadChannel.fs" />
-    <Compile Include="Download\Download.fs" />
-    <Compile Include="Program.fs" />
-  </ItemGroup>
+    <ItemGroup>
+        <Compile Include="Interop\Uri.fs"/>
+        <Compile Include="Interop\TimeSpan.fs"/>
+        <Compile Include="Interop\String.fs"/>
+        <Compile Include="Interop\Path.fs"/>
+        <Compile Include="Interop\Char.fs"/>
+        <Compile Include="Interop\Env.fs"/>
+        <Compile Include="Interop\DateTime.fs"/>
+        <Compile Include="List.fs"/>
+        <Compile Include="Int.fs"/>
+        <Compile Include="Api\Entities.fs"/>
+        <Compile Include="Api\Paging.fs"/>
+        <Compile Include="Api\Api.fs"/>
+        <Compile Include="Api\Decode.fs"/>
+        <Compile Include="Folder.fs"/>
+        <Compile Include="TubeInfo.fs"/>
+        <Compile Include="HandleFiles.fs"/>
+        <Compile Include="GitHub.fs"/>
+        <Compile Include="Cli\Cli.fs"/>
+        <Compile Include="Cli\ArgParse.fs"/>
+        <Compile Include="Cli\CliError.fs"/>
+        <Compile Include="ParseSelection.fs"/>
+        <Compile Include="Rich\Status.fs"/>
+        <Compile Include="Rich\StatusContext.fs"/>
+        <Compile Include="Rich\Markup.fs"/>
+        <Compile Include="Rich\Table.fs"/>
+        <Compile Include="Rich\TextPrompt.fs"/>
+        <Compile Include="Download\DownloadTypes.fs"/>
+        <Compile Include="Download\DownloadVideo.fs"/>
+        <Compile Include="Download\DownloadChannel.fs"/>
+        <Compile Include="Download\Download.fs"/>
+        <Compile Include="Program.fs"/>
+    </ItemGroup>
 
-  <ItemGroup>
-    <PackageReference Include="MinVer" Version="2.5.0">
-      <PrivateAssets>all</PrivateAssets>
-      <IncludeAssets>runtime; build; native; contentfiles; analyzers; buildtransitive</IncludeAssets>
-    </PackageReference>
-    <ResolvedFileToPublish Include="..\..\README.md">
-        <RelativePath>README.md</RelativePath>
-        <CopyToPublishDirectory>PreserveNewest</CopyToPublishDirectory>
-    </ResolvedFileToPublish>
+    <ItemGroup>
+        <PackageReference Include="MinVer" Version="2.5.0">
+            <PrivateAssets>all</PrivateAssets>
+            <IncludeAssets>runtime; build; native; contentfiles; analyzers; buildtransitive</IncludeAssets>
+        </PackageReference>
+        <ResolvedFileToPublish Include="..\..\README.md">
+            <RelativePath>README.md</RelativePath>
+            <CopyToPublishDirectory>PreserveNewest</CopyToPublishDirectory>
+        </ResolvedFileToPublish>
 
-    <ResolvedFileToPublish Include="..\..\LICENSE">
-        <RelativePath>LICENSE</RelativePath>
-        <CopyToPublishDirectory>PreserveNewest</CopyToPublishDirectory>
-    </ResolvedFileToPublish>
-      
-    <PackageReference Include="Argu" Version="6.1.1" />
-    <PackageReference Include="FsHttp" Version="7.0.0" />
-    <PackageReference Include="FsToolkit.ErrorHandling" Version="2.13.0" />
-    <PackageReference Include="Microsoft.FSharpLu" Version="0.11.7" />
-    <PackageReference Include="Spectre.Console" Version="0.43.0" />
-    <PackageReference Include="Thoth.Json.Net" Version="8.0.0" />
-  </ItemGroup>
+        <ResolvedFileToPublish Include="..\..\LICENSE">
+            <RelativePath>LICENSE</RelativePath>
+            <CopyToPublishDirectory>PreserveNewest</CopyToPublishDirectory>
+        </ResolvedFileToPublish>
+
+        <PackageReference Include="Argu" Version="6.1.1"/>
+        <PackageReference Include="FsHttp" Version="7.0.0"/>
+        <PackageReference Include="FsToolkit.ErrorHandling" Version="2.13.0"/>
+        <PackageReference Include="Microsoft.FSharpLu" Version="0.11.7"/>
+        <PackageReference Include="Spectre.Console" Version="0.43.0"/>
+        <PackageReference Include="Thoth.Json.Net" Version="8.0.0"/>
+    </ItemGroup>
+
+    <Target Name="RemoveMisc" AfterTargets="_PublishNoBuildAlternative">
+        <!-- Remove .ps1 from Microsoft.FSharpLu package -->
+        <Delete Files="$(PublishDir)\Sysprep.ps1"/>
+    </Target>
 
 </Project>

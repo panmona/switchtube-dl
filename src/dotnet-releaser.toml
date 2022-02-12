@@ -5,9 +5,6 @@ project = "SwitchTubeDl/SwitchTubeDl.fsproj"
 user = "panmau"
 repo = "switchtube-dl"
 
-[changelog]
-path = "../CHANGELOG.md" # Default config didn't find Changelog
-
 [nuget]
 publish = false
 
