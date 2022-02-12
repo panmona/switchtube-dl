@@ -5,6 +5,13 @@ open FsHttp.Helper
 open FsToolkit.ErrorHandling
 open Microsoft.FSharpLu
 
+open TubeDl
+
+type FullPath = | FullPath of string
+
+module FullPath =
+    let last (FullPath path) = Text.split [| '/' |] path |> Array.last
+
 [<RequireQualifiedAccess>]
 type OverwriteFile =
     | KeepAsIs
@@ -12,16 +19,11 @@ type OverwriteFile =
 
 [<RequireQualifiedAccess>]
 type SaveFileError =
-    | FileExists
+    | FileExists of FullPath : FullPath
     | AccessDenied
     | DirNotFound
     | IOError
-    | InvalidPath of FullPath : string
-
-type FullPath = | FullPath of string
-
-module FullPath =
-    let last (FullPath path) = Text.split [| '/' |] path |> Array.last
+    | InvalidPath of FullPath : FullPath
 
 module HandleFiles =
     let private validFileName str =
@@ -70,11 +72,12 @@ module HandleFiles =
         |> Array.map replaceSpace
         |> System.String
 
-    let private saveFile (FullPath fullPath) (stream : Stream) =
+    let private saveFile fullPath (stream : Stream) =
+        let (FullPath path) = fullPath
         asyncResult {
             use! file =
                 try
-                    File.Create fullPath |> Ok
+                    File.Create path |> Ok
                 with
                 | :? System.UnauthorizedAccessException -> Error SaveFileError.AccessDenied
                 | :? DirectoryNotFoundException -> Error SaveFileError.DirNotFound
@@ -89,15 +92,16 @@ module HandleFiles =
                 | :? System.ObjectDisposedException
                 | :? System.Threading.Tasks.TaskCanceledException -> Error SaveFileError.IOError
 
-            return FullPath fullPath
+            return fullPath
         }
 
-    let private saveFileFromStream overwrite (FullPath fullPath) stream =
+    let private saveFileFromStream overwrite fullPath stream =
+        let (FullPath path) = fullPath
         async {
-            match File.Exists fullPath, overwrite with
-            | true, OverwriteFile.KeepAsIs -> return Error SaveFileError.FileExists
+            match File.Exists path, overwrite with
+            | true, OverwriteFile.KeepAsIs -> return Error (SaveFileError.FileExists fullPath)
             | true, OverwriteFile.Overwrite
-            | false, _ -> return! saveFile (FullPath fullPath) stream
+            | false, _ -> return! saveFile fullPath stream
         }
 
     let fullPath basePath videoDetails videoPath =

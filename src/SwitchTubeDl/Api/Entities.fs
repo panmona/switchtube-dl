@@ -8,8 +8,6 @@ type ChannelDetails =
         OrganizationId : int
         Name : string
         Description : string
-        Category : string
-        Language : string
     }
 
 module ChannelDetails =
@@ -20,8 +18,6 @@ module ChannelDetails =
                 OrganizationId = get.Required.Field "organization_id" Decode.int
                 Name = get.Required.Field "name" Decode.string
                 Description = get.Required.Field "description" Decode.string
-                Category = get.Required.Field "category" Decode.string
-                Language = get.Required.Field "language" Decode.string
             }
         )
 

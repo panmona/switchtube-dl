@@ -2,13 +2,14 @@ module TubeDl.Api
 
 open FsHttp
 open FsHttp.DslCE
+open FsToolkit.ErrorHandling
+open Microsoft.FSharpLu
 
 type Token = | Token of string
 
 [<RequireQualifiedAccess>]
 type RequestType =
     | ChannelDetails
-    | ChannelVideos
     | VideoDetails
     | VideoPaths
     | DownloadVideo
@@ -26,21 +27,6 @@ type ApiError =
 let private baseUrl = "https://tube.switch.ch"
 let private apiPrefix = $"%s{baseUrl}/api/v1"
 let private tokenHeader (Token token) = $"Token %s{token}"
-
-let private channelDetails token channelId =
-    httpAsync {
-        GET $"%s{apiPrefix}/browse/channels/%s{channelId}"
-        CacheControl "no-cache"
-        Authorization (tokenHeader token)
-    }
-
-// TODO I misread doc somehow! This endpoint uses pagination so I need to gather that code again. For example channel: 34621167
-let private channelVideos token channelId =
-    httpAsync {
-        GET $"%s{apiPrefix}/browse/channels/%s{channelId}/videos"
-        CacheControl "no-cache"
-        Authorization (tokenHeader token)
-    }
 
 let private videoDetails token videoId =
     httpAsync {
@@ -67,14 +53,13 @@ let private downloadVideo _token relativeAssetPath =
         CacheControl "no-cache"
     }
 
-let private request requestType =
-    // This function will break when APIs with different params would be needed but these apis will most certainly suffice.
-    match requestType with
-    | RequestType.ChannelDetails -> channelDetails
-    | RequestType.ChannelVideos -> channelVideos
-    | RequestType.VideoDetails -> videoDetails
-    | RequestType.VideoPaths -> videoPaths
-    | RequestType.DownloadVideo -> downloadVideo
+
+let private channelDetails token channelId =
+    httpAsync {
+        GET $"%s{apiPrefix}/browse/channels/%s{channelId}"
+        CacheControl "no-cache"
+        Authorization (tokenHeader token)
+    }
 
 let private handleResult (response : Response) =
     match response.statusCode with
@@ -85,6 +70,39 @@ let private handleResult (response : Response) =
     | System.Net.HttpStatusCode.TooManyRequests -> Error TooManyRequests
     | System.Net.HttpStatusCode.InternalServerError
     | _ -> Error ApiError
+
+let private channelVideos token url =
+    httpAsync {
+        GET url
+        CacheControl "no-cache"
+        Authorization (tokenHeader token)
+    }
+
+let allChannelVideos token channelId =
+    let rec collectAllPages accResults nextUrl = asyncResult {
+        let! response =
+            channelVideos token nextUrl
+            |> Async.map handleResult
+        let newResults = accResults @ [ response ]
+
+        let nextUrlOpt = Paging.tryGetNextPageUri response.headers
+        match nextUrlOpt with
+        | Some nextPage ->
+            return! collectAllPages newResults nextPage
+        | None ->
+            return newResults
+    }
+
+    let initialUrl = $"%s{apiPrefix}/browse/channels/%s{channelId}/videos"
+    collectAllPages [ ] initialUrl
+
+let private request requestType =
+    // This function will break when APIs with different params would be needed but these apis will most certainly suffice.
+    match requestType with
+    | RequestType.ChannelDetails -> channelDetails
+    | RequestType.VideoDetails -> videoDetails
+    | RequestType.VideoPaths -> videoPaths
+    | RequestType.DownloadVideo -> downloadVideo
 
 let api requestType token param =
     async {

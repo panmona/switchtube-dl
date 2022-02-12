@@ -82,6 +82,11 @@ let private getSelectionInputFromPrompt max =
 
     TextPrompt.promptWithValidation "Download >" validation
 
+// TODO handle duplicate files in current saving process
+// probably new type:
+// { details: ..., fileName: ...}
+// for duplicates: append _id to them
+// give file name to handleDownload or use new type there and also in download video
 let private downloadVideos cfg logCallback (videos : VideoDetails list) =
     async {
         let handleDownload v =
@@ -96,14 +101,10 @@ let private downloadVideos cfg logCallback (videos : VideoDetails list) =
             |> List.map (List.map handleDownload >> Async.parallelCombine)
             |> Async.sequential
 
-        let folder state item =
-            // Returns the first error that occured as error
-            match state, item with
-            | Ok _, Ok _ -> Ok ()
-            | Error errs, _
-            | _, Error errs -> Error errs
         // Map the results for proper error reporting to the parent
-        return List.concat allRes |> List.fold folder (Ok ())
+        return
+            List.concat allRes
+            |> List.fold Folder.firstErrorFolderSingle (Ok [])
     }
 
 let runDownloadChannel cfg id =

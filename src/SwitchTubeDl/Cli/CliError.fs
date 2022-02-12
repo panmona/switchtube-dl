@@ -19,9 +19,10 @@ module DownloadError =
             function
             | SaveFileError.AccessDenied ->
                 $"Wasn't able to write a file to the path [italic]%s{cfg.Path}[/]. Please ensure that the path is writable."
-            | SaveFileError.FileExists ->
-                $"The video exists already in the path [italic]%s{cfg.Path}[/]. If you want to overwrite it, use the option [bold yellow]-f[/]."
-            | SaveFileError.InvalidPath path ->
+            | SaveFileError.FileExists fullPath ->
+                let fileName = FullPath.last fullPath
+                $"The video %s{fileName} exists already in the path [italic]%s{cfg.Path}[/]. If you want to overwrite it, use the option [bold yellow]-f[/]."
+            | SaveFileError.InvalidPath (FullPath path) ->
                 $"Wasn't able to save the video to the following invalid path: [italic]%s{path}[/]."
                 + $"If the name of the video file seems to be the cause: %s{GitHub.createIssue}."
             | SaveFileError.DirNotFound -> "The given path was invalid "
@@ -32,7 +33,7 @@ module DownloadError =
         | TubeInfoError (TubeInfoError.ApiError apiError) -> apiErrorMsg apiError
         | TubeInfoError (TubeInfoError.DecodeError s) ->
             "There was an error while decoding the JSON received from the API.\n"
-            + $"%s{GitHub.createIssue} that also contains the following info:\n"
+            + $"%s{GitHub.createIssue} that also contains the following info:\n\n"
             + $"[italic]%s{s}[/]"
         | SaveFileError fileError -> fileErrorMsg fileError
 

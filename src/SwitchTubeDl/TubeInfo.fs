@@ -1,5 +1,6 @@
 namespace TubeDl
 
+open Microsoft.FSharpLu
 open FsToolkit.ErrorHandling
 
 [<RequireQualifiedAccess>]
@@ -8,7 +9,8 @@ type TubeInfoError =
     | DecodeError of string
 
 module TubeInfo =
-    let private mapApiError = AsyncResult.mapError TubeInfoError.ApiError
+    let private mapApiError res =
+        AsyncResult.mapError TubeInfoError.ApiError res
 
     let videoInfo token videoId =
         asyncResult {
@@ -59,14 +61,21 @@ module TubeInfo =
     let channelVideos token channelId =
         asyncResult {
             let! response =
-                Api.api Api.RequestType.ChannelVideos token channelId
+                Api.allChannelVideos token channelId
                 |> mapApiError
 
-            let! txt = Api.toText response
+            let! txts =
+                response
+                |> List.map Api.toText
+                |> Async.sequential
+
+            let decoder =
+                Decode.channelVideos
+                >> Result.mapError TubeInfoError.DecodeError
 
             return!
-                Decode.channelVideos txt
-                |> Result.mapError TubeInfoError.DecodeError
+                List.map decoder txts
+                |> List.fold Folder.firstErrorFolderList (Ok [])
         }
 
     let downloadVideo token path =

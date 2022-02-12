@@ -18,8 +18,10 @@
     <Compile Include="List.fs" />
     <Compile Include="Int.fs" />
     <Compile Include="Api\Entities.fs" />
+    <Compile Include="Api\Paging.fs" />
     <Compile Include="Api\Api.fs" />
     <Compile Include="Api\Decode.fs" />
+    <Compile Include="Folder.fs" />
     <Compile Include="TubeInfo.fs" />
     <Compile Include="HandleFiles.fs" />
     <Compile Include="GitHub.fs" />

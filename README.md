@@ -3,17 +3,20 @@
 
 A simple CLI for downloading videos from SwitchTube.
 
+[![contributions welcome](https://img.shields.io/badge/contributions-welcome-brightgreen.svg?style=flat)](https://github.com/panmau/switchtube-dl/issues)
 [![Release](https://img.shields.io/github/release/panmau/switchtube-dl.svg?classes=badges)](https://github.com/lucassabreu/clockify-cli/releases/latest)
 [![CI](https://github.com/panmau/switchtube-dl/actions/workflows/ci.yml/badge.svg)](https://github.com/panmau/switchtube-dl/actions/workflows/ci.yml)
-[![contributions welcome](https://img.shields.io/badge/contributions-welcome-brightgreen.svg?style=flat)](https://github.com/panmau/switchtube-dl/issues)
+
+> **Disclaimer**:
+>
+> This isn't yet thoroughly tested. It will get tested in-depth throughout the next academic term.
+>
+> Please report any issues that you find.
 
 ## Features
-(or rather limitations)
 
-- switchtube-dl can download videos with their video id
-- videos from channels can be downloaded interactively
-- it should run on all major operating systems
-- it is not an all purpose switchtube access cli
+- [x] download videos from a video id
+- [x] videos from channels are downloaded interactively
 
 Installation [![Powered By: dotnet-releaser](https://img.shields.io/badge/powered%20by-dotnet--releaser-green)](https://github.com/xoofx/dotnet-releaser)
 ------------
@@ -49,9 +52,7 @@ After installation generate an API Token from your [SwitchTube Profile](https://
 You will need this token for every download that you run.
 
 ## Usage
-> **Reminder**:
->
-> Be gentle with downloading videos in parallel as noted in the [official API docs](https://tube.switch.ch/api#accessing-the-web-service)
+> **Please note** that you should be gentle when downloading videos in parallel as noted in the [official API docs](https://tube.switch.ch/api#accessing-the-web-service):
 >
 > "Please be gentle with the servers because hammering the web service will also decrease performance of the web site."
 

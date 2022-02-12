@@ -13,14 +13,6 @@ let (|Range|_|) str =
     | _ -> None
 
 let private parse tokens =
-    // Ok with all results or Error with all Errors
-    let folder state item =
-        match state, item with
-        | Ok prevResults, Ok res -> Ok (prevResults @ res)
-        | Ok _, Error errs -> Error [ errs ]
-        | Error errs, Ok _ -> Error errs
-        | Error prevErrs, Error errs -> Error (prevErrs @ [ errs ])
-
     tokens
     |> List.map (fun t ->
         match t with
@@ -28,7 +20,7 @@ let private parse tokens =
         | Range r -> Ok r
         | _ -> Error t
     )
-    |> List.fold folder (Ok [])
+    |> List.fold Folder.allErrorOrAllOk (Ok [])
 
 let tryParseSelection str =
     let tokens =
