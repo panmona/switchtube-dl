@@ -1,0 +1,24 @@
+﻿<Project Sdk="Microsoft.NET.Sdk">
+
+    <PropertyGroup>
+        <OutputType>Exe</OutputType>
+        <TargetFramework>net6.0</TargetFramework>
+        <RootNamespace>TubeDl.Tests</RootNamespace>
+    </PropertyGroup>
+
+    <ItemGroup>
+        <Compile Include="HandleFiles.fs" />
+        <Compile Include="ParseSelection.fs" />
+        <Compile Include="AllTests.fs" />
+        <Compile Include="Runner.fs" />
+    </ItemGroup>
+
+    <ItemGroup>
+      <PackageReference Include="Expecto" Version="9.0.4" />
+    </ItemGroup>
+
+    <ItemGroup>
+      <ProjectReference Include="..\SwitchTubeDl\SwitchTubeDl.fsproj" />
+    </ItemGroup>
+
+</Project>

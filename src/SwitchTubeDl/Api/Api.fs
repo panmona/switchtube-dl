@@ -79,22 +79,23 @@ let private channelVideos token url =
     }
 
 let allChannelVideos token channelId =
-    let rec collectAllPages accResults nextUrl = asyncResult {
-        let! response =
-            channelVideos token nextUrl
-            |> Async.map handleResult
-        let newResults = accResults @ [ response ]
+    let rec collectAllPages accResults nextUrl =
+        asyncResult {
+            let! response =
+                channelVideos token nextUrl
+                |> Async.map handleResult
 
-        let nextUrlOpt = Paging.tryGetNextPageUri response.headers
-        match nextUrlOpt with
-        | Some nextPage ->
-            return! collectAllPages newResults nextPage
-        | None ->
-            return newResults
-    }
+            let newResults = accResults @ [ response ]
+
+            let nextUrlOpt = Paging.tryGetNextPageUri response.headers
+
+            match nextUrlOpt with
+            | Some nextPage -> return! collectAllPages newResults nextPage
+            | None -> return newResults
+        }
 
     let initialUrl = $"%s{apiPrefix}/browse/channels/%s{channelId}/videos"
-    collectAllPages [ ] initialUrl
+    collectAllPages [] initialUrl
 
 let private request requestType =
     // This function will break when APIs with different params would be needed but these apis will most certainly suffice.

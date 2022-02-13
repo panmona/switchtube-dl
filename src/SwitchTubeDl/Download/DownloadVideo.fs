@@ -43,7 +43,7 @@ let handleDownloadFull reporter cfg id =
 let runDownloadVideo cfg id =
     asyncResult {
         let callback ctx =
-            task {
+            taskResult {
                 let showFinishedStep (step : FinishedDlStep) =
                     match step with
                     | FinishedDlStep.Metadata ->
@@ -56,9 +56,7 @@ let runDownloadVideo cfg id =
                     StatusContext.setSpinner ctx Spinner.Known.Dots10
                     StatusContext.setStatus ctx "[yellow]Saving video[/]"
 
-                return
-                    handleDownloadFull showFinishedStep cfg id
-                    |> Async.RunSynchronously
+                return! handleDownloadFull showFinishedStep cfg id
             }
 
         let! videoTitle, FullPath path = Status.startDefault "[yellow]Fetching video metadata[/]" callback

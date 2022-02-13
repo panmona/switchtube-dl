@@ -3,8 +3,9 @@ name: ci
 on:
     push:
         paths-ignore:
-            - 'CHANGELOG.md'
             - 'README.md'
+            - 'RELEASE.md'
+            - 'CONTRIBUTING.md'
     pull_request:
 
 jobs:
@@ -28,6 +29,9 @@ jobs:
 
             - name: Build project 🏗
               run: dotnet build src -c Release --no-restore
+
+            - name: Test 🚨
+              run: dotnet run --project src/Tests
 
             - name: Publish 🚀
               if: github.event_name == 'push'

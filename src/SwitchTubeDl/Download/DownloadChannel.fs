@@ -6,7 +6,6 @@ open Spectre.Console
 
 open TubeDl
 open TubeDl.Cli
-open TubeDl.ParseSelection
 open TubeDl.Rich
 
 type private ChannelMetadata =
@@ -67,9 +66,9 @@ let private getSelectionInputFromPrompt max =
     let validation input =
         let errorAnnouncement = ":collision: [bold red]Uh oh![/]"
 
-        match isValidAndInAllowedRange (max, 1) input with
-        | Valid -> Ok ()
-        | InvalidTokens e ->
+        match ParseSelection.isValidAndInRange (1, max) input with
+        | ParseSelection.Valid -> Ok ()
+        | ParseSelection.InvalidTokens e ->
             let tokens =
                 e
                 |> List.map (fun e -> $"[italic]%s{e}[/]")
@@ -77,16 +76,12 @@ let private getSelectionInputFromPrompt max =
 
             $"%s{errorAnnouncement} [bold]Wasn't able to parse your input.[/]\nThe following tokens were invalid: %s{tokens}"
             |> Error
-        | MaxValue i -> Error $"%s{errorAnnouncement} The number %i{i} is higher than the allowed: %i{max}"
-        | MinValue i -> Error $"%s{errorAnnouncement} The number %i{i} is lower than 0"
+        | ParseSelection.MaxValue i ->
+            Error $"%s{errorAnnouncement} The number %i{i} is higher than the allowed: %i{max}"
+        | ParseSelection.MinValue i -> Error $"%s{errorAnnouncement} The number %i{i} is lower than 0"
 
     TextPrompt.promptWithValidation "Download >" validation
 
-// TODO handle duplicate files in current saving process
-// probably new type:
-// { details: ..., fileName: ...}
-// for duplicates: append _id to them
-// give file name to handleDownload or use new type there and also in download video
 let private downloadVideos cfg logCallback (videos : VideoDetails list) =
     async {
         let handleDownload v =
@@ -104,18 +99,14 @@ let private downloadVideos cfg logCallback (videos : VideoDetails list) =
         // Map the results for proper error reporting to the parent
         return
             List.concat allRes
-            |> List.fold Folder.firstErrorFolderSingle (Ok [])
+            |> List.fold Folder.firstErrorSingleItems (Ok [])
     }
 
 let runDownloadChannel cfg id =
     asyncResult {
         let! metadata =
             let metadataCallback _ctx =
-                task {
-                    return
-                        downloadChannelMetadata cfg id
-                        |> Async.RunSynchronously
-                }
+                taskResult { return! downloadChannelMetadata cfg id }
 
             Status.startDefault "[yellow]Fetching channel metadata[/]" metadataCallback
             |> AsyncResult.mapError DownloadError.TubeInfoError
@@ -137,7 +128,7 @@ let runDownloadChannel cfg id =
 
         let videoIndexes =
             selection
-            |> tryParseSelection
+            |> ParseSelection.tryParseSelection
             |> function
                 | Ok sel -> List.map (fun i -> i - 1) sel
                 | Error e ->
@@ -151,7 +142,7 @@ let runDownloadChannel cfg id =
             |> List.map snd
 
         let callback _ctx =
-            task {
+            taskResult {
                 let showFinishedStep video (step : FinishedDlStep) =
                     match step with
                     | FinishedDlStep.Metadata ->
@@ -163,9 +154,7 @@ let runDownloadChannel cfg id =
                     let fileName = FullPath.last path
                     Markup.log $"[yellow bold]Saved file[/] \"[italic]%s{video}[/]\" as \"[italic]%s{fileName}[/]\""
 
-                return
-                    downloadVideos cfg showFinishedStep videosToDownload
-                    |> Async.RunSynchronously
+                return! downloadVideos cfg showFinishedStep videosToDownload
             }
 
         let! _ =

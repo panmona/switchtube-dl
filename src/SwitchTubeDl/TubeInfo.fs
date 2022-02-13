@@ -75,7 +75,7 @@ module TubeInfo =
 
             return!
                 List.map decoder txts
-                |> List.fold Folder.firstErrorFolderList (Ok [])
+                |> List.fold Folder.firstErrorList (Ok [])
         }
 
     let downloadVideo token path =

@@ -20,6 +20,7 @@ let private parse tokens =
         | Range r -> Ok r
         | _ -> Error t
     )
+    |> List.distinct
     |> List.fold Folder.allErrorOrAllOk (Ok [])
 
 let tryParseSelection str =
@@ -36,7 +37,7 @@ type ValidationResult =
     | MinValue of int
     | InvalidTokens of string list
 
-let isValidAndInAllowedRange (max, min) str =
+let isValidAndInRange (min, max) str =
     let selRes = tryParseSelection str
 
     match selRes with
