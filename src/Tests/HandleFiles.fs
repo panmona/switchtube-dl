@@ -42,11 +42,12 @@ let private fullPathTests =
         [
             testCase "Appends base path"
             <| fun _ ->
-                let base' = "/my/base/path"
+                let sep = Path.directorySeparator
+                let base' = $"%c{sep}my%c{sep}base%c{sep}path"
                 let fileName = "a_file.mp4"
                 let (FullPath path) = HandleFiles.fullPath base' fileName
 
-                Expect.equal path "/my/base/path/a_file.mp4" "Didn't combine Path correctly"
+                Expect.equal path $"%c{sep}my%c{sep}base%c{sep}path%c{sep}a_file.mp4" "Didn't combine Path correctly"
         ]
 
 let tests = testList "Handle Files" [ fileNameTests ; fullPathTests ]

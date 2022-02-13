@@ -10,7 +10,7 @@ open TubeDl
 type FullPath = | FullPath of string
 
 module FullPath =
-    let last (FullPath path) = Text.split [| '/' |] path |> Array.last
+    let last (FullPath path) = Text.split [| Path.directorySeparator |] path |> Array.last
 
 [<RequireQualifiedAccess>]
 type ExistingFilesHandling =
