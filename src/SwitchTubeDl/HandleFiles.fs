@@ -85,12 +85,15 @@ module HandleFiles =
                 | :? System.NotSupportedException -> Error (SaveFileError.InvalidPath fullPath)
 
             let! _ =
-                try
-                    stream.CopyToAsync file |> Async.AwaitTask |> Ok
-                with
-                | :? IOException
-                | :? System.ObjectDisposedException
-                | :? System.Threading.Tasks.TaskCanceledException -> Error SaveFileError.IOError
+                task {
+                    try
+                        let! res = stream.CopyToAsync file
+                        return Ok res
+                    with
+                    | :? IOException
+                    | :? System.ObjectDisposedException
+                    | :? System.Threading.Tasks.TaskCanceledException -> return Error SaveFileError.IOError
+                }
 
             return fullPath
         }
