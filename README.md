@@ -1,7 +1,8 @@
-
 # switchtube-dl
 
 A simple CLI for downloading videos from SwitchTube.
+
+This makes it a lot more convenient to consume the videos on-demand when you're offline.
 
 [![contributions welcome](https://img.shields.io/badge/contributions-welcome-brightgreen.svg?style=flat)](https://github.com/panmau/switchtube-dl/issues)
 [![Release](https://img.shields.io/github/release/panmau/switchtube-dl.svg?classes=badges)](https://github.com/lucassabreu/clockify-cli/releases/latest)
@@ -24,7 +25,9 @@ Installation [![Powered By: dotnet-releaser](https://img.shields.io/badge/powere
 ### Linux
 
 #### Arch Linux
+
 Install it with your favourite AUR helper. For example:
+
 ```bash
 pamac install switchtube-dl
 # or:
@@ -32,9 +35,12 @@ yay -S switchtube-dl
 ```
 
 #### Debian
-Download the `.deb` package for your architecture from the [latest release](https://github.com/panmau/switchtube-dl/releases/latest) and install it with your package manager.
+
+Download the `.deb` package for your architecture from
+the [latest release](https://github.com/panmau/switchtube-dl/releases/latest) and install it with your package manager.
 
 ### macOS
+
 (Installation with Homebrew coming soon.)
 
 ```bash
@@ -42,19 +48,26 @@ Download the `.deb` package for your architecture from the [latest release](http
 ```
 
 ### Windows
-Download the [latest windows release](https://github.com/panmau/switchtube-dl/releases/latest) zip for your architecture. If you aren't sure about your architecture, try it with `win-x64.zip`.
 
-Unzip it and put the `.exe` in an appropriate place. For easier access, make sure that this place is contained in your PATH variable.
+Download the [latest windows release](https://github.com/panmau/switchtube-dl/releases/latest) zip for your
+architecture. If you aren't sure about your architecture, try it with `win-x64.zip`.
+
+Unzip it and put the `.exe` in an appropriate place. For easier access, make sure that this place is contained in your
+PATH variable.
 
 ## Getting Started
-After installation generate an API Token from your [SwitchTube Profile](https://tube.switch.ch/access_tokens) and save it to an appropriate place.
+
+After installation generate an API Token from your [SwitchTube Profile](https://tube.switch.ch/access_tokens) and save
+it to an appropriate place.
 
 You will need this token for every download that you run.
 
 ## Usage
+
 > **Please note** that you should be gentle when downloading videos in parallel as noted in the [official API docs](https://tube.switch.ch/api#accessing-the-web-service):
 >
-> "Please be gentle with the servers because hammering the web service will also decrease performance of the web site."
+> `Please be gentle with the servers because hammering the web service will also decrease performance of the web site.`
+
 
 <br>
 
@@ -74,11 +87,13 @@ OPTIONS:
 ```
 
 ### Download a video
+
 ```bash
 switchtube-dl -v 123456 --token $SWITCHTUBE_TOKEN
 ```
 
 ### Download a channel
+
 ```bash
 switchtube-dl -c 123456 --token $SWITCHTUBE_TOKEN
 ```
@@ -98,43 +113,24 @@ Index │ Title              │ Duration │    Date
     8 │ Video H            │ 00:11:12 │ 2022-02-07
     9 │ Video I            │ 01:03:00 │ 2022-02-09
 ```
-To choose which videos to download, specify indices of the videos separated by commas like: `1,4,5,6` if you want to download the videos indexed 1,4,5,6 of the channel.
+
+To choose which videos to download, specify indices of the videos separated by commas like: `1,4,5,6` if you want to
+download the videos indexed 1,4,5,6 of the channel.
 
 You can specify a range, for example `1-3,5,7-9` will download the videos at index 1, 2, 3, 5, 7, 8 and 9.
 
-## Run Locally
-Prerequisites
-- .net6 SDK needs to be installed
+#### Global flags
 
----
+##### Overwrite existing files
 
-Clone the project
-```bash
-git clone git@github.com:panmau/switchtube-dl.git
-```
+Per default the CLI exits when it notices that a file already exists under the same name. If it should overwrite it
+instead use
+`-f` or `--force`.
 
-Go to the project directory
+#### Provide the path
 
-```bash
-cd switchtube-dl
-```
-
-Install necessary tools
-```bash
-dotnet tool restore
-```
-
-Run the CLI
-
-```bash
-cd src/SwitchTubeDl
-dotnet run -- {your args}
-```
-
-Format the source code according to the [Styleguide](https://github.com/G-Research/fsharp-formatting-conventions)
-```bash
-dotnet fantomas src -r
-```
+Per default the files are downloaded to the directory from where the CLI was invoked. If you want to provide a different
+path use `-p` or `--path`. This path **must** be **absolute**
 
 ## Related
 
@@ -142,7 +138,9 @@ dotnet fantomas src -r
 
 ## Contributing
 
-Any type of feedback, pull request or issue is welcome. Follow the "Run locally" section of this documentation to learn how to debug the project.
+Any type of feedback, pull request or issue is welcome.
+
+See `CONTRIBUTING.md` for ways to get started.
 
 ## License
 
