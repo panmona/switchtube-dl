@@ -45,8 +45,7 @@ let private tryParseSelectionTests =
                 let items = "x,y,,-"
                 let parsedRes = ParseSelection.tryParseSelection items
 
-                let invalidTokens =
-                    Expect.wantError parsedRes "Parsing failed"
+                let invalidTokens = Expect.wantError parsedRes "Parsing failed"
 
                 Expect.equal invalidTokens [ "x" ; "y" ; "" ; "-" ] "Not the correct invalid tokens were returned"
         ]

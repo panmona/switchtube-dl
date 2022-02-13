@@ -6,4 +6,4 @@ open TubeDl
 type FinishedDlStep =
     | Metadata
     | Download
-    | FileHandling of FullPath
+    | FileHandling of FileWriteResult

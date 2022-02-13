@@ -11,23 +11,30 @@ type DownloadType =
     | Channel of Id : string
     | Video of Id : string
 
+[<RequireQualifiedAccess>]
+type ChannelFilter = | All
+
 type CliCfg =
     {
         DownloadType : DownloadType
         Token : Api.Token
         Path : string
-        OverwriteFile : OverwriteFile
+        ExistingFileHandling : ExistingFilesHandling
+        ChannelFilter : ChannelFilter option
     }
 
 type CfgParseError =
     | InvalidPath
     | DownloadTypeMissing
 
+// Alias for less noise
+type ParseRes = ParseResults<CliArgs>
+
 module CliArgParse =
-    // If all of these would be their separate subcommands this wouldn't be required.
+    // If all download types would be their separate subcommands this wouldn't be required.
     // But that has a usability tradeoff for the user.
-    // Especially as a specific help message currently can't be written to subcommand.
-    let tryGetDownloadType (results : ParseResults<CliArgs>) =
+    // Especially as a specific help message currently can't be written to the subcommand help page using Argu.
+    let tryGetDownloadType (results : ParseRes) =
         let channel = results.Contains CliArgs.Channel
         let video = results.Contains CliArgs.Video
 
@@ -42,7 +49,7 @@ module CliArgParse =
             |> Ok
         | false, false -> Error DownloadTypeMissing
 
-    let tryGetPath (results : ParseResults<CliArgs>) =
+    let tryGetPath (results : ParseRes) =
         match results.Contains CliArgs.Path with
         | true ->
             let path = results.GetResult CliArgs.Path
@@ -52,23 +59,38 @@ module CliArgParse =
             | false -> Error InvalidPath
         | false -> Env.workingDir |> Ok
 
+    let tryGetChannelFilter (results : ParseRes) =
+        // Return type is Result as Date Parsing will require Result
+        let all = results.Contains CliArgs.A
+
+        match all with
+        | true -> Some ChannelFilter.All |> Ok
+        | false -> None |> Ok
+
     let initCfgFromArgs results =
         result {
             let! dlType = tryGetDownloadType results
             let token = results.GetResult CliArgs.Token // Mandatory argument, safe to call this.
             let! path = tryGetPath results
 
-            let overwrite =
-                match results.Contains CliArgs.Force with
-                | true -> OverwriteFile.Overwrite
-                | false -> OverwriteFile.KeepAsIs
+            let existingFileHandling =
+                let skip = results.Contains CliArgs.Skip
+                let force = results.Contains CliArgs.Force
+
+                match skip, force with
+                | true, _ -> ExistingFilesHandling.Skip
+                | _, true -> ExistingFilesHandling.Overwrite
+                | false, false -> ExistingFilesHandling.KeepAsIs
+
+            let! channelFilterOpt = tryGetChannelFilter results
 
             let cfg =
                 {
                     DownloadType = dlType
                     Token = Api.Token token
                     Path = path
-                    OverwriteFile = overwrite
+                    ExistingFileHandling = existingFileHandling
+                    ChannelFilter = channelFilterOpt
                 }
 
             return cfg

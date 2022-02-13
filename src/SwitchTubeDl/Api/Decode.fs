@@ -8,5 +8,4 @@ let channelVideos = Decode.fromString (Decode.list VideoDetails.decoder)
 
 let videoDetails = Decode.fromString VideoDetails.decoder
 
-// TODO According to the api documentation: "All these endpoints return either a list or a single asset object." Check if this is true.
 let videoPaths = Decode.fromString (Decode.list VideoPath.decoder)

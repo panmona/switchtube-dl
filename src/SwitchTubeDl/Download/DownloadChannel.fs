@@ -29,9 +29,28 @@ let private downloadChannelMetadata cfg id =
             }
     }
 
+let private downloadVideos cfg logCallback (videos : VideoDetails list) =
+    async {
+        let handleDownload v =
+            asyncResult {
+                let prefilledCallback = logCallback v.Title
+                return! DownloadVideo.handleDownload prefilledCallback cfg v
+            }
+
+        let! allRes =
+            videos
+            |> List.chunkBySize 3
+            |> List.map (List.map handleDownload >> Async.parallelCombine)
+            |> Async.sequential
+
+        // Mapping the results for proper error reporting to the parent
+        return
+            List.concat allRes
+            |> List.fold Folder.firstErrorSingleItems (Ok [])
+    }
+
 let private printMetadataTable metadata =
-    let displayEpisode =
-        List.exists (fun v -> Option.isSome v.Episode) metadata.Videos
+    let displayEpisode = List.exists (fun v -> Option.isSome v.Episode) metadata.Videos
 
     let columns =
         [
@@ -82,38 +101,43 @@ let private getSelectionInputFromPrompt max =
 
     TextPrompt.promptWithValidation "Download >" validation
 
-let private downloadVideos cfg logCallback (videos : VideoDetails list) =
-    async {
-        let handleDownload v =
-            asyncResult {
-                let prefilledCallback = logCallback v.Title
-                return! DownloadVideo.handleDownload prefilledCallback cfg v
+let private runDownloadFromDetails cfg metadata videoDetails =
+    asyncResult {
+        let callback _ctx =
+            taskResult {
+                let showFinishedStep video (step : FinishedDlStep) =
+                    match step with
+                    | FinishedDlStep.Metadata ->
+                        Markup.log $"Received video [yellow bold]metadata[/] of \"[italic]%s{video}[/]\""
+                    | FinishedDlStep.Download ->
+                        Markup.log $"Received video [yellow bold]file[/] \"[italic]%s{video}[/]\""
+                    | FinishedDlStep.FileHandling res ->
+
+                    match res with
+                    | FileWriteResult.Written path ->
+                        let fileName = FullPath.last path
+
+                        Markup.log
+                            $"[yellow bold]Saved video[/] \"[italic]%s{video}[/]\" as \"[italic]%s{fileName}[/]\""
+                    | FileWriteResult.Skipped ->
+                        Markup.log
+                            $"[yellow bold]Skipped[/] saving of video \"[italic]%s{video}[/]\" as it already exists and the skip option was provided"
+
+                return! downloadVideos cfg showFinishedStep videoDetails
             }
 
-        let! allRes =
-            videos
-            |> List.chunkBySize 3
-            |> List.map (List.map handleDownload >> Async.parallelCombine)
-            |> Async.sequential
+        let! _ =
+            Status.start
+                Spinner.Known.BouncingBar
+                $"[bold blue]Downloading videos of channel [yellow underline]%s{metadata.Name}[/][/]"
+                callback
 
-        // Map the results for proper error reporting to the parent
-        return
-            List.concat allRes
-            |> List.fold Folder.firstErrorSingleItems (Ok [])
+        Markup.printn
+            $":popcorn: [bold green]Success![/] The requested videos of channel [yellow bold]%s{metadata.Name}[/] were downloaded to [italic]%s{cfg.Path}[/]"
     }
 
-let runDownloadChannel cfg id =
+let private runDownloadInteractive cfg metadata =
     asyncResult {
-        let! metadata =
-            let metadataCallback _ctx =
-                taskResult { return! downloadChannelMetadata cfg id }
-
-            Status.startDefault "[yellow]Fetching channel metadata[/]" metadataCallback
-            |> AsyncResult.mapError DownloadError.TubeInfoError
-            |> AsyncResult.teeError (fun e ->
-                Markup.printn $":collision: [red][bold]Failure![/] The error [bold]%A{e}[/] occured[/]"
-            )
-
         Markup.printn $":sparkles: Found the following videos for channel [yellow bold underline]%s{metadata.Name}[/]:"
         printMetadataTable metadata
 
@@ -141,28 +165,23 @@ let runDownloadChannel cfg id =
             |> List.filter (fun (i, _) -> List.contains i videoIndexes)
             |> List.map snd
 
-        let callback _ctx =
-            taskResult {
-                let showFinishedStep video (step : FinishedDlStep) =
-                    match step with
-                    | FinishedDlStep.Metadata ->
-                        Markup.log $"Received video [yellow bold]metadata[/] of \"[italic]%s{video}[/]\""
-                    | FinishedDlStep.Download ->
-                        Markup.log $"Received video [yellow bold]file[/] \"[italic]%s{video}[/]\""
-                    | FinishedDlStep.FileHandling path ->
+        return! runDownloadFromDetails cfg metadata videosToDownload
+    }
 
-                    let fileName = FullPath.last path
-                    Markup.log $"[yellow bold]Saved file[/] \"[italic]%s{video}[/]\" as \"[italic]%s{fileName}[/]\""
+let runDownload cfg id =
+    asyncResult {
+        let! metadata =
+            let metadataCallback _ctx =
+                taskResult { return! downloadChannelMetadata cfg id }
 
-                return! downloadVideos cfg showFinishedStep videosToDownload
-            }
+            Status.startDefault "[yellow]Fetching channel metadata[/]" metadataCallback
+            |> AsyncResult.mapError DownloadError.TubeInfoError
+            |> AsyncResult.teeError (fun e ->
+                Markup.printn $":collision: [red][bold]Failure![/] The error [bold]%A{e}[/] occured[/]"
+            )
 
-        let! _ =
-            Status.start
-                Spinner.Known.BouncingBar
-                $"[bold blue]Downloading videos of channel [yellow underline]%s{metadata.Name}[/][/]"
-                callback
+        match cfg.ChannelFilter with
+        | Some ChannelFilter.All -> return! runDownloadFromDetails cfg metadata metadata.Videos
+        | None -> return! runDownloadInteractive cfg metadata
 
-        Markup.printn
-            $":popcorn: [bold green]Success![/] The requested videos of channel [yellow bold]%s{metadata.Name}[/] were downloaded to [italic]%s{cfg.Path}[/]"
     }

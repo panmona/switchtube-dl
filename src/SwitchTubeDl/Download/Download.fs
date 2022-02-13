@@ -21,12 +21,12 @@ let runDownload res =
 
     match cfg.DownloadType with
     | DownloadType.Video id ->
-        DownloadVideo.runDownloadVideo cfg id
+        DownloadVideo.runDownload cfg id
         |> Async.RunSynchronously
         |> Result.teeError printError
         |> Result.mapError CliError.DownloadError
     | DownloadType.Channel id ->
-        DownloadChannel.runDownloadChannel cfg id
+        DownloadChannel.runDownload cfg id
         |> Async.RunSynchronously
         |> Result.teeError printError
         |> Result.mapError CliError.DownloadError

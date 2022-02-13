@@ -13,8 +13,9 @@ module FullPath =
     let last (FullPath path) = Text.split [| '/' |] path |> Array.last
 
 [<RequireQualifiedAccess>]
-type OverwriteFile =
+type ExistingFilesHandling =
     | KeepAsIs
+    | Skip
     | Overwrite
 
 [<RequireQualifiedAccess>]
@@ -24,6 +25,11 @@ type SaveFileError =
     | DirNotFound
     | IOError
     | InvalidPath of FullPath : FullPath
+
+[<RequireQualifiedAccess>]
+type FileWriteResult =
+    | Written of FullPath
+    | Skipped
 
 module HandleFiles =
     let private replaceInvalidChars str =
@@ -104,9 +110,13 @@ module HandleFiles =
 
         async {
             match File.Exists path, overwrite with
-            | true, OverwriteFile.KeepAsIs -> return Error (SaveFileError.FileExists fullPath)
-            | true, OverwriteFile.Overwrite
-            | false, _ -> return! saveFile fullPath stream
+            | true, ExistingFilesHandling.KeepAsIs -> return Error (SaveFileError.FileExists fullPath)
+            | true, ExistingFilesHandling.Skip -> return Ok FileWriteResult.Skipped
+            | true, ExistingFilesHandling.Overwrite
+            | false, _ ->
+                return!
+                    saveFile fullPath stream
+                    |> AsyncResult.map FileWriteResult.Written
         }
 
     let fileName videoDetails videoPath =

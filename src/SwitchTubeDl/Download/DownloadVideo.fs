@@ -23,7 +23,7 @@ let handleDownload reporter cfg video =
         reporter FinishedDlStep.Download
 
         let! fullPath =
-            HandleFiles.saveVideo cfg.OverwriteFile cfg.Path video path stream
+            HandleFiles.saveVideo cfg.ExistingFileHandling cfg.Path video path stream
             |> AsyncResult.mapError DownloadError.SaveFileError
 
         FinishedDlStep.FileHandling fullPath |> reporter
@@ -31,7 +31,7 @@ let handleDownload reporter cfg video =
         return video.Title, fullPath
     }
 
-let handleDownloadFull reporter cfg id =
+let private handleDownloadFull reporter cfg id =
     asyncResult {
         let! videoInfo =
             TubeInfo.videoInfo cfg.Token id
@@ -40,7 +40,7 @@ let handleDownloadFull reporter cfg id =
         return! handleDownload reporter cfg videoInfo
     }
 
-let runDownloadVideo cfg id =
+let runDownload cfg id =
     asyncResult {
         let callback ctx =
             taskResult {
@@ -59,10 +59,15 @@ let runDownloadVideo cfg id =
                 return! handleDownloadFull showFinishedStep cfg id
             }
 
-        let! videoTitle, FullPath path = Status.startDefault "[yellow]Fetching video metadata[/]" callback
+        let! videoTitle, saveFileSuccess = Status.startDefault "[yellow]Fetching video metadata[/]" callback
 
-        $":popcorn: [bold green]Success![/] The video [bold]%s{videoTitle}[/] was downloaded to [italic]%s{path}[/]"
-        |> Markup.printn
+        match saveFileSuccess with
+        | FileWriteResult.Written (FullPath path) ->
+            $":popcorn: [bold green]Success![/] The video [bold]%s{videoTitle}[/] was downloaded to [italic]%s{path}[/]"
+            |> Markup.printn
+        | FileWriteResult.Skipped ->
+            $":next_track_button: [yellow bold]Skipped[/] saving of video \"[italic]%s{videoTitle}[/]\" as it already exists and the skip option was provided"
+            |> Markup.printn
 
         return ()
     }

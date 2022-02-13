@@ -72,17 +72,19 @@ You will need this token for every download that you run.
 <br>
 
 ```bash
-USAGE: switchtube-dl [--help] [--video <video id>] [--channel <channel id>] --token <token> [--path <path>] [--force]
+USAGE: switchtube-dl [--help] [--video <video id>] [--channel <channel id>] --token <token> [--path <path>] [--skip] [--force] [-a]
 
 OPTIONS:
 
     --video, -v <video id>
                           Download type. Downloads a specific video. Prioritized if multiple download types are given
     --channel, -c <channel id>
-                          Download type. Download videos from this channel
+                          Download type. Download videos from this channel. Starts in interactive mode if no filter option is given
     --token, -t <token>   Token to access the SwitchTube API (mandatory). Generate a token at https://tube.switch.ch/access_tokens
     --path, -p <path>     Paths to download videos to (defaults to current dir)
-    --force, -f           Overwrite already existing files
+    --skip                Existing file handling option. Skip saving of already existing files. Prioritized if multiple existing file options are given
+    --force, -f           Existing file handling option. Overwrite already existing files
+    -a                    Filter option. Downloads all videos in a channel
     --help                display this list of options.
 ```
 
@@ -92,13 +94,13 @@ OPTIONS:
 switchtube-dl -v 123456 --token $SWITCHTUBE_TOKEN
 ```
 
-### Download a channel
+### Channel download
 
 ```bash
 switchtube-dl -c 123456 --token $SWITCHTUBE_TOKEN
 ```
 
-It will per default output a table of all videos in this channel:
+It will per default start in interactive mode and output a table of all videos in this channel:
 
 ```
 Index │ Title              │ Duration │    Date
@@ -119,17 +121,26 @@ download the videos indexed 1,4,5,6 of the channel.
 
 You can specify a range, for example `1-3,5,7-9` will download the videos at index 1, 2, 3, 5, 7, 8 and 9.
 
-#### Global flags
+#### Filter options
+If you don't want to use interactive mode for the channel download there are the following filter options:
 
-##### Overwrite existing files
+##### All videos
+With `-a` all videos in the channel are downloaded.
 
-Per default the CLI exits when it notices that a file already exists under the same name. If it should overwrite it
-instead use
-`-f` or `--force`.
+### Global options
 
-#### Provide the path
+##### Existing file handling
+Per default the CLI exits when it notices that a file already exists under the same name. If you want a different behavior there are two strategies defined.
 
-Per default the files are downloaded to the directory from where the CLI was invoked. If you want to provide a different
+###### Overwrite
+If already existing files should be overwritten use `-f` or `--force`.
+
+###### Skip
+If already existing files should be skipped use `--skip`. If both options are provided skip is prioritized.
+
+#### Path
+
+Per default the files are downloaded to the directory from where the CLI is invoked. If you want to provide a different
 path use `-p` or `--path`. This path **must** be **absolute**
 
 ## Related
