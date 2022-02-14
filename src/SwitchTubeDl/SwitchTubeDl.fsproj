@@ -5,6 +5,7 @@
         <TargetFramework>net6.0</TargetFramework>
         <RootNamespace>TubeDl</RootNamespace>
         <AssemblyName>switchtube-dl</AssemblyName>
+        <PackageLicenseExpression>MIT</PackageLicenseExpression>
     </PropertyGroup>
 
     <PropertyGroup Condition=" '$(Configuration)' == 'Debug' ">
