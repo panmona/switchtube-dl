@@ -30,7 +30,7 @@ jobs:
             - name: Build project 🏗
               run: dotnet build src -c Release --no-restore
 
-            - name: Test 🚨
+            - name: Test 🏭
               run: dotnet run --project src/Tests
 
             - name: Publish 🚀

@@ -5,7 +5,7 @@ A simple CLI for downloading videos from SwitchTube.
 This makes it a lot more convenient to consume the videos on-demand when you're offline.
 
 [![contributions welcome](https://img.shields.io/badge/contributions-welcome-brightgreen.svg?style=flat)](https://github.com/panmau/switchtube-dl/issues)
-[![Release](https://img.shields.io/github/release/panmau/switchtube-dl.svg?classes=badges)](https://github.com/lucassabreu/clockify-cli/releases/latest)
+[![Release](https://img.shields.io/github/v/tag/panmau/switchtube-dl?label=version)](https://github.com/panmau/switchtube-dl/releases/latest)
 [![CI](https://github.com/panmau/switchtube-dl/actions/workflows/ci.yml/badge.svg)](https://github.com/panmau/switchtube-dl/actions/workflows/ci.yml)
 
 > **Disclaimer**:
@@ -16,8 +16,9 @@ This makes it a lot more convenient to consume the videos on-demand when you're 
 
 ## Features
 
-- [x] download videos from a video id
-- [x] videos from channels are downloaded interactively
+- [x] Download videos by their video id
+- [x] Videos from channels can be downloaded selectively with interactive mode (default)
+- [x] All videos can be downloaded from channels non interactively
 
 Installation [![Powered By: dotnet-releaser](https://img.shields.io/badge/powered%20by-dotnet--releaser-green)](https://github.com/xoofx/dotnet-releaser)
 ------------
@@ -29,9 +30,9 @@ Installation [![Powered By: dotnet-releaser](https://img.shields.io/badge/powere
 Install it with your favourite AUR helper. For example:
 
 ```bash
-pamac install switchtube-dl
+pamac install switchtube-dl-bin
 # or:
-yay -S switchtube-dl
+yay -S switchtube-dl-bin
 ```
 
 #### Debian
@@ -40,8 +41,6 @@ Download the `.deb` package for your architecture from
 the [latest release](https://github.com/panmau/switchtube-dl/releases/latest) and install it with your package manager.
 
 ### macOS
-
-(Installation with Homebrew coming soon.)
 
 ```bash
   brew install panmau/panmau/switchtube-dl
@@ -122,20 +121,26 @@ download the videos indexed 1,4,5,6 of the channel.
 You can specify a range, for example `1-3,5,7-9` will download the videos at index 1, 2, 3, 5, 7, 8 and 9.
 
 #### Filter options
+
 If you don't want to use interactive mode for the channel download there are the following filter options:
 
 ##### All videos
+
 With `-a` all videos in the channel are downloaded.
 
 ### Global options
 
 ##### Existing file handling
-Per default the CLI exits when it notices that a file already exists under the same name. If you want a different behavior there are two strategies defined.
+
+Per default the CLI exits when it notices that a file already exists under the same name. If you want a different
+behavior there are two strategies defined.
 
 ###### Overwrite
+
 If already existing files should be overwritten use `-f` or `--force`.
 
 ###### Skip
+
 If already existing files should be skipped use `--skip`. If both options are provided skip is prioritized.
 
 #### Path

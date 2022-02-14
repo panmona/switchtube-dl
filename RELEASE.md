@@ -1,6 +1,5 @@
 # Release Process
 To create a new Release do the following steps:
-- Add an element in the `CHANGELOG.md` with the version of the release and its changelog
 - Create a new release in GitHub with the same version
 - Bump the version field in the `PKGBUILD` file
 - After the release pipeline published its binaries, push the newest `PKGBUILD` to the [AUR](#publish-to-aur).
