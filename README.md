@@ -37,8 +37,6 @@ yay -S switchtube-dl-bin
 
 #### Debian
 
-> **Disclaimer**: This hasn't yet been tested.
-
 Download the `.deb` package for your architecture from
 the [latest release](https://github.com/panmau/switchtube-dl/releases/latest) and install it with your package manager.
 
@@ -73,19 +71,24 @@ You will need this token for every download that you run.
 <br>
 
 ```bash
-USAGE: switchtube-dl [--help] [--video <video id>] [--channel <channel id>] --token <token> [--path <path>] [--skip] [--force] [-a]
+USAGE: switchtube-dl [--help] [--video <video id>] [--channel <channel id>] [--token <token>] [--path <path>] [--skip]
+                     [--force] [--all] [--version]
 
 OPTIONS:
 
     --video, -v <video id>
                           Download type. Downloads a specific video. Prioritized if multiple download types are given
     --channel, -c <channel id>
-                          Download type. Download videos from this channel. Starts in interactive mode if no filter option is given
-    --token, -t <token>   Token to access the SwitchTube API (mandatory). Generate a token at https://tube.switch.ch/access_tokens
-    --path, -p <path>     Paths to download videos to (defaults to current dir)
-    --skip                Existing file handling option. Skip saving of already existing files. Prioritized if multiple existing file options are given
+                          Download type. Download videos from this channel. Starts in interactive mode if no filter
+                          option is given
+    --token, -t <token>   Token to access the SwitchTube API (mandatory). Generate a token at
+                          https://tube.switch.ch/access_tokens
+    --path, -p <path>     Paths to download videos to (defaults to current dir). The path must already exist.
+    --skip, -s            Existing file handling option. Skip saving of already existing files. Prioritized if
+                          multiple existing file options are given
     --force, -f           Existing file handling option. Overwrite already existing files
-    -a                    Filter option. Downloads all videos in a channel
+    --all, -a             Filter option. Downloads all videos in a channel
+    --version             Display the current version.
     --help                display this list of options.
 ```
 

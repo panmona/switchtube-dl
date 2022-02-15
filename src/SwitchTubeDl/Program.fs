@@ -2,6 +2,7 @@
 
 open Argu
 
+open TubeDl
 open TubeDl.Cli
 open TubeDl.Download
 
@@ -24,5 +25,10 @@ let main argv =
     let results =
         parser.ParseCommandLine (inputs = argv, raiseOnUsage = true)
 
-    Download.runDownload results
-    |> CliError.getExitCode
+    match results.Contains CliArgs.Version with
+    | true ->
+        printfn $"%s{Version.parseVersion ()}"
+        0
+    | false ->
+        Download.runDownload results
+        |> CliError.getExitCode

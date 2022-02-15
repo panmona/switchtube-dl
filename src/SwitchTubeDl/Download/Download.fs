@@ -8,8 +8,11 @@ open TubeDl.Rich
 
 let runDownload res =
     match CliArgParse.initCfgFromArgs res with
+    | Error TokenMissing ->
+        eprintfn "Specify the token to access SwitchTube. If you don't have one generate one at: https://tube.switch.ch/access_tokens"
+        Error ArgumentsNotSpecified
     | Error DownloadTypeMissing ->
-        Markup.eprintn "Specify a download types with [italic]--video[/] or [italic]--channel[/]"
+        Markup.eprintn "Specify a download type with [italic]--video[/] or [italic]--channel[/]"
         Error ArgumentsNotSpecified
     | Error InvalidPath ->
         eprintfn "The given path should be absolute"

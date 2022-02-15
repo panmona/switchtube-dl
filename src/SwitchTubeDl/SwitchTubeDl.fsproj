@@ -48,6 +48,7 @@
         <Compile Include="Download\DownloadVideo.fs" />
         <Compile Include="Download\DownloadChannel.fs" />
         <Compile Include="Download\Download.fs" />
+        <Compile Include="Version.fs" />
         <Compile Include="Program.fs" />
     </ItemGroup>
 

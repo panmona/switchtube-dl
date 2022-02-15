@@ -26,6 +26,7 @@ type CliCfg =
 type CfgParseError =
     | InvalidPath
     | DownloadTypeMissing
+    | TokenMissing
 
 // Alias for less noise
 type ParseRes = ParseResults<CliArgs>
@@ -70,7 +71,10 @@ module CliArgParse =
     let initCfgFromArgs results =
         result {
             let! dlType = tryGetDownloadType results
-            let token = results.GetResult CliArgs.Token // Mandatory argument, safe to call this.
+            let! token =
+                match results.Contains CliArgs.Token with
+                | true -> results.GetResult CliArgs.Token |> Ok
+                | false -> Error TokenMissing
             let! path = tryGetPath results
 
             let existingFileHandling =
