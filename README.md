@@ -128,7 +128,7 @@ If you don't want to use interactive mode for the channel download there are the
 
 ##### All videos
 
-With `-a` all videos in the channel are downloaded.
+With `-a` or `--all` all videos in the channel are downloaded.
 
 ### Global options
 
@@ -143,7 +143,7 @@ If already existing files should be overwritten use `-f` or `--force`.
 
 ###### Skip
 
-If already existing files should be skipped use `--skip`. If both options are provided skip is prioritized.
+If already existing files should be skipped use `-s` or `--skip`. If both options are provided skip is prioritized.
 
 #### Path
 

@@ -61,7 +61,7 @@ module CliArgParse =
 
     let tryGetChannelFilter (results : ParseRes) =
         // Return type is Result as Date Parsing will require Result
-        let all = results.Contains CliArgs.A
+        let all = results.Contains CliArgs.All
 
         match all with
         | true -> Some ChannelFilter.All |> Ok

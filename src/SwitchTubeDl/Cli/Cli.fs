@@ -7,9 +7,9 @@ type CliArgs =
     | [<Unique ; AltCommandLine("-c")>] Channel of channel_id : string
     | [<ExactlyOnce ; AltCommandLine("-t")>] Token of token : string
     | [<AltCommandLine("-p")>] Path of path : string
-    | Skip
+    | [<AltCommandLine("-s")>] Skip
     | [<AltCommandLine("-f")>] Force
-    | [<CliPrefix(CliPrefix.Dash)>] A
+    | [<AltCommandLine("-a")>] All
 
     interface IArgParserTemplate with
         member this.Usage =
@@ -23,6 +23,6 @@ type CliArgs =
             | Skip ->
                 "Existing file handling option. Skip saving of already existing files. Prioritized if multiple existing file options are given"
             | Force -> "Existing file handling option. Overwrite already existing files"
-            | A -> "Filter option. Downloads all videos in a channel"
+            | All -> "Filter option. Downloads all videos in a channel"
 
 // TODO add date options
