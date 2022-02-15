@@ -37,19 +37,21 @@ yay -S switchtube-dl-bin
 
 #### Debian
 
+> **Disclaimer**: This hasn't yet been tested.
+
 Download the `.deb` package for your architecture from
 the [latest release](https://github.com/panmau/switchtube-dl/releases/latest) and install it with your package manager.
 
 ### macOS
 
 ```bash
-  brew install panmau/panmau/switchtube-dl
+brew install panmau/panmau/switchtube-dl
 ```
 
 ### Windows
 
 Download the [latest windows release](https://github.com/panmau/switchtube-dl/releases/latest) zip for your
-architecture. If you aren't sure about your architecture, try it with `win-x64.zip`.
+architecture. If you aren't sure about your architecture, you're most likely going to have success with `win-x64.zip`.
 
 Unzip it and put the `.exe` in an appropriate place. For easier access, make sure that this place is contained in your
 PATH variable.
