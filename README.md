@@ -151,7 +151,7 @@ If already existing files should be skipped use `-s` or `--skip`. If both option
 #### Path
 
 Per default the files are downloaded to the directory from where the CLI is invoked. If you want to provide a different
-path use `-p` or `--path`. This path **must** be **absolute**
+path use `-p` or `--path`. This path must be **absolute** and **exist**.
 
 ## Related
 
