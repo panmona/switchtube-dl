@@ -1,7 +1,6 @@
 module TubeDl.Download.DownloadVideo
 
 open FsToolkit.ErrorHandling
-open Microsoft.FSharpLu
 open Spectre.Console
 
 open TubeDl
@@ -63,10 +62,10 @@ let runDownload cfg id =
 
         match saveFileSuccess with
         | FileWriteResult.Written (FullPath path) ->
-            $":popcorn: [bold green]Success![/] The video [bold]%s{videoTitle}[/] was downloaded to [italic]%s{path}[/]"
+            $":popcorn: [bold green]Success![/] The video [bold]%s{esc path}[/] was downloaded to [italic]%s{esc path}[/]"
             |> Markup.printn
         | FileWriteResult.Skipped ->
-            $":next_track_button: [yellow bold]Skipped[/] saving of video \"[italic]%s{videoTitle}[/]\" as it already exists and the skip option was provided"
+            $":next_track_button: [yellow bold]Skipped[/] saving of video \"[italic]%s{esc videoTitle}[/]\" as it already exists and the skip option was provided"
             |> Markup.printn
 
         return ()

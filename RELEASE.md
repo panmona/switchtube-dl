@@ -7,7 +7,7 @@ To create a new Release do the following steps:
 ## [Publish to AUR](https://wiki.archlinux.org/title/AUR_submission_guidelines#Publishing_new_package_content)
 ```bash
 $ makepkg --printsrcinfo > .SRCINFO
-$ git add PKGBUILD .SRCINFO
+$ git add -f PKGBUILD .SRCINFO
 $ git commit -m "useful commit message"
 $ git push
 ```

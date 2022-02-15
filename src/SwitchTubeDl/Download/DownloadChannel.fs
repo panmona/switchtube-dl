@@ -108,20 +108,20 @@ let private runDownloadFromDetails cfg metadata videoDetails =
                 let showFinishedStep video (step : FinishedDlStep) =
                     match step with
                     | FinishedDlStep.Metadata ->
-                        Markup.log $"Received video [yellow bold]metadata[/] of \"[italic]%s{video}[/]\""
+                        Markup.log $"Received video [yellow bold]metadata[/] of \"[italic]%s{esc video}[/]\""
                     | FinishedDlStep.Download ->
-                        Markup.log $"Received video [yellow bold]file[/] \"[italic]%s{video}[/]\""
+                        Markup.log $"Received video [yellow bold]file[/] \"[italic]%s{esc video}[/]\""
                     | FinishedDlStep.FileHandling res ->
 
                     match res with
                     | FileWriteResult.Written path ->
                         let fileName = FullPath.last path
 
-                        Markup.log
-                            $"[yellow bold]Saved video[/] \"[italic]%s{video}[/]\" as \"[italic]%s{fileName}[/]\""
+                        $"[yellow bold]Saved video[/] \"[italic]%s{esc video}[/]\" as \"[italic]%s{esc fileName}[/]\""
+                        |> Markup.log
                     | FileWriteResult.Skipped ->
-                        Markup.log
-                            $"[yellow bold]Skipped[/] saving of video \"[italic]%s{video}[/]\" as it already exists and the skip option was provided"
+                        $"[yellow bold]Skipped[/] saving of video \"[italic]%s{esc video}[/]\" as it already exists and the skip option was provided"
+                        |> Markup.log
 
                 return! downloadVideos cfg showFinishedStep videoDetails
             }
@@ -129,23 +129,24 @@ let private runDownloadFromDetails cfg metadata videoDetails =
         let! _ =
             Status.start
                 Spinner.Known.BouncingBar
-                $"[bold blue]Downloading videos of channel [yellow underline]%s{metadata.Name}[/][/]"
+                $"[bold blue]Downloading videos of channel [yellow underline]%s{esc metadata.Name}[/][/]"
                 callback
 
         Markup.printn
-            $":popcorn: [bold green]Success![/] The requested videos of channel [yellow bold]%s{metadata.Name}[/] were downloaded to [italic]%s{cfg.Path}[/]"
+            $":popcorn: [bold green]Success![/] The requested videos of channel [yellow bold]%s{esc metadata.Name}[/] were downloaded to [italic]%s{esc cfg.Path}[/]"
     }
 
 let private runDownloadInteractive cfg metadata =
     asyncResult {
-        Markup.printn $":sparkles: Found the following videos for channel [yellow bold underline]%s{metadata.Name}[/]:"
+        $":sparkles: Found the following videos for channel [yellow bold underline]%s{esc metadata.Name}[/]:"
+        |> Markup.printn
+
         printMetadataTable metadata
 
         "[bold underline]Choose[/] which videos you want to download by specifying their [yellow bold underline]index[/]\n"
         + "Separate the entries with [yellow bold],[/] and use [yellow bold]-[/] to specify a range ([italic]e.g.: \"1, 3-7, 10\"[/])"
         |> Markup.printn
 
-        // TODO Ctrl+C after this doesn't work. also happens with plain C#/F# app Console.ReadLine...
         let selection =
             List.length metadata.Videos
             |> getSelectionInputFromPrompt
@@ -176,9 +177,6 @@ let runDownload cfg id =
 
             Status.startDefault "[yellow]Fetching channel metadata[/]" metadataCallback
             |> AsyncResult.mapError DownloadError.TubeInfoError
-            |> AsyncResult.teeError (fun e ->
-                Markup.printn $":collision: [red][bold]Failure![/] The error [bold]%A{e}[/] occured[/]"
-            )
 
         match cfg.ChannelFilter with
         | Some ChannelFilter.All -> return! runDownloadFromDetails cfg metadata metadata.Videos

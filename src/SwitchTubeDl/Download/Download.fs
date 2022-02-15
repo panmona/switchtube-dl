@@ -17,7 +17,8 @@ let runDownload res =
     | Ok cfg ->
 
     let printError e =
-        Markup.eprintn $":collision: [bold red]Failure![/] %s{DownloadError.errorMsg cfg e}"
+        let errorMsg = DownloadError.errorMsg cfg e // This fun should escape content correctly as it also contains markup
+        Markup.eprintn $":collision: [bold red]Failure![/] %s{errorMsg}"
 
     match cfg.DownloadType with
     | DownloadType.Video id ->

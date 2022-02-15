@@ -1,6 +1,7 @@
 namespace TubeDl.Cli
 
 open TubeDl
+open TubeDl.Rich
 
 type DownloadError =
     | TubeInfoError of TubeInfoError
@@ -18,13 +19,13 @@ module DownloadError =
         let fileErrorMsg =
             function
             | SaveFileError.AccessDenied ->
-                $"Wasn't able to write a file to the path [italic]%s{cfg.Path}[/]. Please ensure that the path is writable."
+                $"Wasn't able to write a file to the path [italic]%s{esc cfg.Path}[/]. Please ensure that the path is writable."
             | SaveFileError.FileExists fullPath ->
                 let fileName = FullPath.last fullPath
-                $"The video %s{fileName} exists already in the path [italic]%s{cfg.Path}[/]. If you want to overwrite it, use the option [bold yellow]-f[/]."
+                $"The video %s{esc fileName} exists already in the path [italic]%s{esc cfg.Path}[/]. If you want to overwrite it, use the option [bold yellow]-f[/]."
             | SaveFileError.InvalidPath (FullPath path) ->
-                $"Wasn't able to save the video to the following invalid path: [italic]%s{path}[/]."
-                + $"If the name of the video file seems to be the cause: %s{GitHub.createIssue}."
+                $"Wasn't able to save the video to the following invalid path: [italic]%s{esc path}[/]."
+                + $"If the name of the video file seems to be the cause: %s{esc GitHub.createIssue}."
             | SaveFileError.DirNotFound -> "The given path was invalid "
             | SaveFileError.IOError ->
                 "There was an IO error while saving the file. Please check your path and try again."
@@ -34,7 +35,7 @@ module DownloadError =
         | TubeInfoError (TubeInfoError.DecodeError s) ->
             "There was an error while decoding the JSON received from the API.\n"
             + $"%s{GitHub.createIssue} that also contains the following info:\n\n"
-            + $"[italic]%s{s}[/]"
+            + $"[italic]%s{esc s}[/]"
         | SaveFileError fileError -> fileErrorMsg fileError
 
 type CliError =
