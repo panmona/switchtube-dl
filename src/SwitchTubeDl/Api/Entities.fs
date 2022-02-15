@@ -41,7 +41,9 @@ module VideoDetails =
                 Id = get.Required.Field "id" Decode.string
                 ProfileId = get.Required.Field "profile_id" Decode.int
                 ChannelId = get.Required.Field "channel_id" Decode.int
-                Title = get.Required.Field "title" Decode.string
+                Title =
+                    get.Required.Field "title" Decode.string
+                    |> String.trim
                 Episode = get.Optional.Field "episode" Decode.string
                 PublishedAt = get.Required.Field "published_at" Decode.datetimeOffset
                 LicenseCode = get.Required.Field "license_code" Decode.string
