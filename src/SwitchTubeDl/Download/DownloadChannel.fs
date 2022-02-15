@@ -50,7 +50,8 @@ let private downloadVideos cfg logCallback (videos : VideoDetails list) =
     }
 
 let private printMetadataTable metadata =
-    let displayEpisode = List.exists (fun v -> Option.isSome v.Episode) metadata.Videos
+    let displayEpisode =
+        List.exists (fun v -> Option.isSome v.EpisodeOpt) metadata.Videos
 
     let columns =
         [
@@ -67,7 +68,7 @@ let private printMetadataTable metadata =
             v.Title
             (VideoDetails.duration >> TimeSpan.hourMinuteSecond) v
             DateTime.isoString v.PublishedAt
-            match v.Episode, displayEpisode with
+            match v.EpisodeOpt, displayEpisode with
             | Some ep, true -> $"%3s{ep}"
             | None, true -> "" // Pad the table
             | Some _, false // This case shouldn't happen

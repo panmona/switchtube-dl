@@ -1,6 +1,7 @@
 namespace TubeDl
 
 open Thoth.Json.Net
+open TubeDl
 
 type ChannelDetails =
     {
@@ -21,6 +22,35 @@ module ChannelDetails =
             }
         )
 
+type VideoDetailsApi =
+    {
+        Id : string
+        ProfileId : int
+        ChannelId : int
+        Title : string
+        /// API allows any possible string
+        EpisodeOpt : string option
+        /// API also returns non published videos
+        PublishedAtOpt : System.DateTimeOffset option
+        LicenseCode : string
+        DurationInMilliseconds : int
+    }
+
+module VideoDetailsApi =
+    let decoder : Decoder<VideoDetailsApi> =
+        Decode.object (fun get ->
+            {
+                Id = get.Required.Field "id" Decode.string
+                ProfileId = get.Required.Field "profile_id" Decode.int
+                ChannelId = get.Required.Field "channel_id" Decode.int
+                Title = get.Required.Field "title" Decode.string
+                EpisodeOpt = get.Optional.Field "episode" Decode.string
+                PublishedAtOpt = get.Optional.Field "published_at" Decode.datetimeOffset
+                LicenseCode = get.Required.Field "license_code" Decode.string
+                DurationInMilliseconds = get.Required.Field "duration_in_milliseconds" Decode.int
+            }
+        )
+
 type VideoDetails =
     {
         Id : string
@@ -28,28 +58,24 @@ type VideoDetails =
         ChannelId : int
         Title : string
         /// API allows any possible string
-        Episode : string option
+        EpisodeOpt : string option
         PublishedAt : System.DateTimeOffset
         LicenseCode : string
         DurationInMilliseconds : int
     }
 
 module VideoDetails =
-    let decoder : Decoder<VideoDetails> =
-        Decode.object (fun get ->
-            {
-                Id = get.Required.Field "id" Decode.string
-                ProfileId = get.Required.Field "profile_id" Decode.int
-                ChannelId = get.Required.Field "channel_id" Decode.int
-                Title =
-                    get.Required.Field "title" Decode.string
-                    |> String.trim
-                Episode = get.Optional.Field "episode" Decode.string
-                PublishedAt = get.Required.Field "published_at" Decode.datetimeOffset
-                LicenseCode = get.Required.Field "license_code" Decode.string
-                DurationInMilliseconds = get.Required.Field "duration_in_milliseconds" Decode.int
-            }
-        )
+    let unsafeFromApi (api : VideoDetailsApi) =
+        {
+            Id = api.Id
+            ProfileId = api.ProfileId
+            ChannelId = api.ChannelId
+            Title = api.Title |> String.trim
+            EpisodeOpt = api.EpisodeOpt
+            PublishedAt = api.PublishedAtOpt.Value
+            LicenseCode = api.LicenseCode
+            DurationInMilliseconds = api.DurationInMilliseconds
+        }
 
     let duration videoDetails =
         videoDetails.DurationInMilliseconds

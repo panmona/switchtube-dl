@@ -20,9 +20,11 @@ module TubeInfo =
 
             let! txt = Api.toText response
 
-            return!
+            let! videoDetails =
                 Decode.videoDetails txt
                 |> Result.mapError TubeInfoError.DecodeError
+            // PublishedAt should always be set for videos that are found video detail endpoint. Otherwise it would return Not Found.
+            return VideoDetails.unsafeFromApi videoDetails
         }
 
     let pathForVideo token videoId =
@@ -73,9 +75,13 @@ module TubeInfo =
                 Decode.channelVideos
                 >> Result.mapError TubeInfoError.DecodeError
 
-            return!
+            let! details =
                 List.map decoder txts
                 |> List.fold Folder.firstErrorList (Ok [])
+
+            return
+                List.filter (fun v -> Option.isSome v.PublishedAtOpt) details
+                |> List.map VideoDetails.unsafeFromApi
         }
 
     let downloadVideo token path =

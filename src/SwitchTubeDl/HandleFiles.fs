@@ -125,7 +125,7 @@ module HandleFiles =
         let extension = MediaType.extension videoPath.MediaType
 
         let episode =
-            videoDetails.Episode
+            videoDetails.EpisodeOpt
             |> Option.map validFileName
             |> Option.map (String.append "_")
             |> Option.defaultValue ""
