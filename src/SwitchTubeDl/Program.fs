@@ -22,8 +22,7 @@ let main argv =
             helpTextMessage = "A simple CLI for downloading videos from SwitchTube."
         )
 
-    let results =
-        parser.ParseCommandLine (inputs = argv, raiseOnUsage = true)
+    let results = parser.ParseCommandLine (inputs = argv, raiseOnUsage = true)
 
     match results.Contains CliArgs.Version with
     | true ->

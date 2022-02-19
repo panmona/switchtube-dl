@@ -67,7 +67,6 @@ You will need this token for every download that you run.
 >
 > `Please be gentle with the servers because hammering the web service will also decrease performance of the web site.`
 
-
 <br>
 
 ```bash
@@ -81,7 +80,7 @@ OPTIONS:
     --channel, -c <channel id>
                           Download type. Download videos from this channel. Starts in interactive mode if no filter
                           option is given
-    --token, -t <token>   Token to access the SwitchTube API (mandatory). Generate a token at
+    --token, -t <token>   Token to access the SwitchTube API. Generate a token at
                           https://tube.switch.ch/access_tokens
     --path, -p <path>     Paths to download videos to (defaults to current dir). The path must already exist.
     --skip, -s            Existing file handling option. Skip saving of already existing files. Prioritized if
@@ -95,13 +94,13 @@ OPTIONS:
 ### Download a video
 
 ```bash
-switchtube-dl -v 123456 --token $SWITCHTUBE_TOKEN
+switchtube-dl -v 123456
 ```
 
 ### Channel download
 
 ```bash
-switchtube-dl -c 123456 --token $SWITCHTUBE_TOKEN
+switchtube-dl -c 123456
 ```
 
 It will per default start in interactive mode and output a table of all videos in this channel:

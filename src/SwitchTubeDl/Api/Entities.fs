@@ -1,6 +1,7 @@
 namespace TubeDl
 
 open Thoth.Json.Net
+
 open TubeDl
 
 type ChannelDetails =

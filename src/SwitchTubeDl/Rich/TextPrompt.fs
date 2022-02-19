@@ -14,3 +14,8 @@ let promptWithValidation msg validator =
     prompt.Validate validation |> ignore
 
     AnsiConsole.Prompt prompt
+
+let secretPrompt msg =
+    let prompt = TextPrompt msg
+    prompt.Secret () |> ignore
+    AnsiConsole.Prompt prompt

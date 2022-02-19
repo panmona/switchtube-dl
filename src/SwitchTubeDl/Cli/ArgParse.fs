@@ -14,7 +14,26 @@ type DownloadType =
 [<RequireQualifiedAccess>]
 type ChannelFilter = | All
 
+type TokenParseResult =
+    | Ask
+    | Provided of Api.Token
+
+module TokenParseResult =
+    let unsafeExtract =
+        function
+        | Ask -> failwith "Please provide a valid token"
+        | Provided token -> token
+
 type CliCfg =
+    {
+        DownloadType : DownloadType
+        TokenParseResult : TokenParseResult
+        Path : string
+        ExistingFileHandling : ExistingFilesHandling
+        ChannelFilter : ChannelFilter option
+    }
+
+type ValidatedCfg =
     {
         DownloadType : DownloadType
         Token : Api.Token
@@ -23,10 +42,19 @@ type CliCfg =
         ChannelFilter : ChannelFilter option
     }
 
+module ValidatedCfg =
+    let unsafeFromCliCfg (cliCfg : CliCfg) =
+        {
+            DownloadType = cliCfg.DownloadType
+            Token = TokenParseResult.unsafeExtract cliCfg.TokenParseResult
+            Path = cliCfg.Path
+            ExistingFileHandling = cliCfg.ExistingFileHandling
+            ChannelFilter = cliCfg.ChannelFilter
+        }
+
 type CfgParseError =
     | InvalidPath
     | DownloadTypeMissing
-    | TokenMissing
 
 // Alias for less noise
 type ParseRes = ParseResults<CliArgs>
@@ -71,10 +99,15 @@ module CliArgParse =
     let initCfgFromArgs results =
         result {
             let! dlType = tryGetDownloadType results
-            let! token =
+
+            let token =
                 match results.Contains CliArgs.Token with
-                | true -> results.GetResult CliArgs.Token |> Ok
-                | false -> Error TokenMissing
+                | true ->
+                    results.GetResult CliArgs.Token
+                    |> Api.Token
+                    |> TokenParseResult.Provided
+                | false -> TokenParseResult.Ask
+
             let! path = tryGetPath results
 
             let existingFileHandling =
@@ -91,7 +124,7 @@ module CliArgParse =
             let cfg =
                 {
                     DownloadType = dlType
-                    Token = Api.Token token
+                    TokenParseResult = token
                     Path = path
                     ExistingFileHandling = existingFileHandling
                     ChannelFilter = channelFilterOpt
