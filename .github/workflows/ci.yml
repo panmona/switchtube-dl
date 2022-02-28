@@ -8,6 +8,9 @@ on:
             - 'CONTRIBUTING.md'
     pull_request:
     release:
+        types: 
+            - published
+            - prereleased
 
 jobs:
     build:
