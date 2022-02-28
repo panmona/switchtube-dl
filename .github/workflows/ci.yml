@@ -7,10 +7,11 @@ on:
             - 'RELEASE.md'
             - 'CONTRIBUTING.md'
     pull_request:
+    release:
 
 jobs:
     build:
-        runs-on: windows-latest
+        runs-on: macos-latest
 
         steps:
             - name: Checkout 🛎️
@@ -34,11 +35,7 @@ jobs:
               run: dotnet run --project src/Tests
 
             - name: Publish 🚀
-              if: github.event_name == 'push'
+              if: github.event_name == 'release'
               run: |
-                  if ( "${{github.ref}}" -match "^refs/tags/[0-9]+\.[0-9]+\.[0-9]+" ) {
-                      dotnet tool install --global dotnet-releaser --version "0.1.*"
-                      dotnet-releaser publish --github-token ${{secrets.TOKEN_GITHUB}} src/dotnet-releaser.toml
-                  } else {
-                      echo "publish is only enabled by tagging with a release tag"
-                  }
+                  dotnet tool install --global dotnet-releaser --version "0.1.*"
+                  dotnet-releaser publish --github-token ${{secrets.TOKEN_GITHUB}} src/dotnet-releaser.toml
