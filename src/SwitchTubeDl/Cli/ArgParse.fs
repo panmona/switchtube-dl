@@ -33,7 +33,7 @@ type CliCfg =
         ChannelFilter : ChannelFilter option
     }
 
-type ValidatedCfg =
+type CompleteCfg =
     {
         DownloadType : DownloadType
         Token : Api.Token
@@ -42,7 +42,7 @@ type ValidatedCfg =
         ChannelFilter : ChannelFilter option
     }
 
-module ValidatedCfg =
+module CompleteCfg =
     let unsafeFromCliCfg (cliCfg : CliCfg) =
         {
             DownloadType = cliCfg.DownloadType

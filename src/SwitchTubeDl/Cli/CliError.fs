@@ -8,7 +8,7 @@ type DownloadError =
     | SaveFileError of SaveFileError
 
 module DownloadError =
-    let errorMsg (cfg : ValidatedCfg) (error : DownloadError) =
+    let errorMsg (cfg : CompleteCfg) (error : DownloadError) =
         let apiErrorMsg =
             function
             | Api.UnauthorizedAccess -> "A valid token needs to be provided."

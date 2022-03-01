@@ -31,12 +31,12 @@ let runDownload res =
     | Error InvalidPath ->
         eprintfn "The given path should be absolute"
         Error ArgumentsNotSpecified
-    | Ok cfg ->
+    | Ok cliCfg ->
 
-    let cfg = withToken cfg |> ValidatedCfg.unsafeFromCliCfg
+    let cfg = withToken cliCfg |> CompleteCfg.unsafeFromCliCfg
 
     let printError e =
-        let errorMsg = DownloadError.errorMsg cfg e // This fun should escape content correctly as it also contains markup
+        let errorMsg = DownloadError.errorMsg cfg e // This fun should escape its content correctly as it also contains markup
         Markup.eprintn $":collision: [bold red]Failure![/] %s{errorMsg}"
 
     match cfg.DownloadType with
