@@ -54,6 +54,8 @@ architecture. If you aren't sure about your architecture, you're most likely goi
 Unzip it and put the `.exe` in an appropriate place. For easier access, make sure that this place is contained in your
 PATH variable.
 
+If Emoji are not displaying correctly in your terminal refer to [this documentation](https://github.com/spectreconsole/spectre.console/blob/main/docs/input/best-practices.md#configuring-the-windows-terminal-for-unicode-and-emoji-support).
+
 ## Getting Started
 
 After installation generate an API Token from your [SwitchTube Profile](https://tube.switch.ch/access_tokens) and save
