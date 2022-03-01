@@ -18,8 +18,7 @@ type CliArgs =
             | Video _ -> "Download type. Downloads a specific video. Prioritized if multiple download types are given"
             | Channel _ ->
                 "Download type. Download videos from this channel. Starts in interactive mode if no filter option is given"
-            | Token _ ->
-                "Token to access the SwitchTube API. Generate a token at https://tube.switch.ch/access_tokens"
+            | Token _ -> "Token to access the SwitchTube API. Generate a token at https://tube.switch.ch/access_tokens"
             | Path _ -> "Paths to download videos to (defaults to current dir). The path must already exist."
             | Skip ->
                 "Existing file handling option. Skip saving of already existing files. Prioritized if multiple existing file options are given"

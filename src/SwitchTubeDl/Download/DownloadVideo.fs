@@ -7,6 +7,13 @@ open TubeDl
 open TubeDl.Cli
 open TubeDl.Rich
 
+let private shouldSkipDownload cfg videoDetails videoPath =
+    let (FullPath fullPath) =
+        HandleFiles.fullPathForVideo cfg.Path videoDetails videoPath
+
+    cfg.ExistingFileHandling = ExistingFilesHandling.Skip
+    && File.exists fullPath
+
 let handleDownload reporter cfg video =
     asyncResult {
         let! path =
@@ -15,19 +22,25 @@ let handleDownload reporter cfg video =
 
         reporter FinishedDlStep.Metadata
 
-        let! stream =
-            TubeInfo.downloadVideo cfg.Token path.Path
-            |> AsyncResult.mapError DownloadError.TubeInfoError
+        if shouldSkipDownload cfg video path then
+            let res = FileWriteResult.Skipped
+            FinishedDlStep.FileHandling res |> reporter
+            return video.Title, res
+        else
+            let! stream =
+                TubeInfo.downloadVideo cfg.Token path.Path
+                |> AsyncResult.mapError DownloadError.TubeInfoError
 
-        reporter FinishedDlStep.Download
+            reporter FinishedDlStep.Download
 
-        let! fullPath =
-            HandleFiles.saveVideo cfg.ExistingFileHandling cfg.Path video path stream
-            |> AsyncResult.mapError DownloadError.SaveFileError
+            let! writeResult =
+                HandleFiles.saveVideo cfg.ExistingFileHandling cfg.Path video path stream
+                |> AsyncResult.mapError DownloadError.SaveFileError
 
-        FinishedDlStep.FileHandling fullPath |> reporter
+            FinishedDlStep.FileHandling writeResult
+            |> reporter
 
-        return video.Title, fullPath
+            return video.Title, writeResult
     }
 
 let private handleDownloadFull reporter cfg id =
@@ -65,7 +78,8 @@ let runDownload cfg id =
             $":popcorn: [bold green]Success![/] The video [bold]%s{esc path}[/] was downloaded to [italic]%s{esc path}[/]"
             |> Markup.printn
         | FileWriteResult.Skipped ->
-            $":next_track_button: [yellow bold]Skipped[/] saving of video \"[italic]%s{esc videoTitle}[/]\" as it already exists and the skip option was provided"
+            // Don't delete the extra space! It is needed so that this specific emoji has a spacing to the next character.
+            $":next_track_button:  [yellow bold]Skipped[/] saving of video \"[italic]%s{esc videoTitle}[/]\" as it already exists"
             |> Markup.printn
 
         return ()

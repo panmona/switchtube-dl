@@ -2,6 +2,7 @@ namespace TubeDl.Cli
 
 open Argu
 open FsToolkit.ErrorHandling
+open Microsoft.FSharpLu
 
 open TubeDl
 open TubeDl.Cli
@@ -33,7 +34,7 @@ type CliCfg =
         ChannelFilter : ChannelFilter option
     }
 
-type ValidatedCfg =
+type CompleteCfg =
     {
         DownloadType : DownloadType
         Token : Api.Token
@@ -42,7 +43,7 @@ type ValidatedCfg =
         ChannelFilter : ChannelFilter option
     }
 
-module ValidatedCfg =
+module CompleteCfg =
     let unsafeFromCliCfg (cliCfg : CliCfg) =
         {
             DownloadType = cliCfg.DownloadType
@@ -83,9 +84,12 @@ module CliArgParse =
         | true ->
             let path = results.GetResult CliArgs.Path
 
-            match Path.isFullyQualified path with
-            | true -> Ok path
-            | false -> Error InvalidPath
+            let fullyQualified = Path.isFullyQualified path
+            let valid = File.validateFilePath path
+
+            match fullyQualified, valid with
+            | true, Some _ -> Ok path
+            | _ -> Error InvalidPath
         | false -> Env.workingDir |> Ok
 
     let tryGetChannelFilter (results : ParseRes) =
