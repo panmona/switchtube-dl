@@ -121,7 +121,7 @@ let private runDownloadFromDetails cfg metadata videoDetails =
                         $"[yellow bold]Saved video[/] \"[italic]%s{esc video}[/]\" as \"[italic]%s{esc fileName}[/]\""
                         |> Markup.log
                     | FileWriteResult.Skipped ->
-                        $"[yellow bold]Skipped[/] saving of video \"[italic]%s{esc video}[/]\" as it already exists and the skip option was provided"
+                        $"[yellow bold]Skipped[/] saving of video \"[italic]%s{esc video}[/]\" as it already exists"
                         |> Markup.log
 
                 return! downloadVideos cfg showFinishedStep videoDetails

@@ -53,6 +53,11 @@ module CliError =
         | DownloadError dlErr ->
 
         match dlErr with
-        | TubeInfoError (TubeInfoError.ApiError _) -> 2
-        | TubeInfoError (TubeInfoError.DecodeError _) -> 3
-        | SaveFileError _ -> 4
+        | TubeInfoError (TubeInfoError.ApiError apiErr) ->
+            match apiErr with
+            | Api.UnauthorizedAccess -> 2
+            | Api.ResourceNotFound -> 3
+            | Api.TooManyRequests -> 5
+            | Api.ApiError -> 6
+        | TubeInfoError (TubeInfoError.DecodeError _) -> 7
+        | SaveFileError _ -> 8

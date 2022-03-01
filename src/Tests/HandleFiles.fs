@@ -35,7 +35,6 @@ let private fileNameTests =
                 Expect.equal fileName "A_really_cool_video_about_auo_TheId.mp4" "Didn't handle suboptimal chars"
         ]
 
-
 let private fullPathTests =
     testList
         "fullPath"

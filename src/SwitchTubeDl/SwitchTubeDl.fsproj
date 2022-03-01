@@ -25,6 +25,7 @@
         <Compile Include="Interop\Env.fs" />
         <Compile Include="Interop\DateTime.fs" />
         <Compile Include="Interop\Regex.fs" />
+        <Compile Include="Interop\File.fs" />
         <Compile Include="List.fs" />
         <Compile Include="Int.fs" />
         <Compile Include="Api\Entities.fs" />

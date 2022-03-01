@@ -86,7 +86,7 @@ module HandleFiles =
         asyncResult {
             use! file =
                 try
-                    File.Create path |> Ok
+                    File.create path |> Ok
                 with
                 | :? System.UnauthorizedAccessException -> Error SaveFileError.AccessDenied
                 | :? DirectoryNotFoundException -> Error SaveFileError.DirNotFound
@@ -111,7 +111,7 @@ module HandleFiles =
         let (FullPath path) = fullPath
 
         async {
-            match File.Exists path, overwrite with
+            match File.exists path, overwrite with
             | true, ExistingFilesHandling.KeepAsIs -> return Error (SaveFileError.FileExists fullPath)
             | true, ExistingFilesHandling.Skip -> return Ok FileWriteResult.Skipped
             | true, ExistingFilesHandling.Overwrite
@@ -135,9 +135,10 @@ module HandleFiles =
 
     let fullPath basePath file = Path.combine basePath file |> FullPath
 
-    let saveVideo overwrite basePath videoDetails videoPath stream =
-        let path =
-            fileName videoDetails videoPath
-            |> fullPath basePath
+    let fullPathForVideo basePath videoDetails videoPath =
+        fileName videoDetails videoPath
+        |> fullPath basePath
 
+    let saveVideo overwrite basePath videoDetails videoPath stream =
+        let path = fullPathForVideo basePath videoDetails videoPath
         saveFileFromStream overwrite path stream
