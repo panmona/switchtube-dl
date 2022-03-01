@@ -9,7 +9,7 @@
       ]
     },
     "dotnet-releaser": {
-      "version": "0.1.12",
+      "version": "0.3.4",
       "commands": [
         "dotnet-releaser"
       ]
