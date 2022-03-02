@@ -85,7 +85,7 @@ OPTIONS:
     --token, -t <token>   Token to access the SwitchTube API. Generate a token at
                           https://tube.switch.ch/access_tokens
     --path, -p <path>     Paths to download videos to (defaults to current dir). The path must already exist.
-    --skip, -s            Existing file handling option. Skip saving of already existing files. Prioritized if
+    --skip, -s            Existing file handling option. Skip download of already existing files. Prioritized if
                           multiple existing file options are given
     --force, -f           Existing file handling option. Overwrite already existing files
     --all, -a             Filter option. Downloads all videos in a channel

@@ -21,7 +21,7 @@ type CliArgs =
             | Token _ -> "Token to access the SwitchTube API. Generate a token at https://tube.switch.ch/access_tokens"
             | Path _ -> "Paths to download videos to (defaults to current dir). The path must already exist."
             | Skip ->
-                "Existing file handling option. Skip saving of already existing files. Prioritized if multiple existing file options are given"
+                "Existing file handling option. Skip download of already existing files. Prioritized if multiple existing file options are given"
             | Force -> "Existing file handling option. Overwrite already existing files"
             | All -> "Filter option. Downloads all videos in a channel"
             | Version -> "Display the current version."
