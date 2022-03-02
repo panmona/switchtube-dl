@@ -23,16 +23,7 @@ jobs:
                 with:
                     dotnet-version: '6.0.x'
 
-            -   name: Install dependencies 📦
-                run: dotnet restore src
-
-            -   name: Build project 🏗
-                run: dotnet build src -c Release --no-restore
-
-            -   name: Test 🏭
-                run: dotnet run --project src/Tests
-
-            -   name: Publish 🚀
+            -   name: Restore, Build, Tests, Publish (on tag) 🚀
                 run: |
                     dotnet tool install --global dotnet-releaser --version "0.3.*"
-                    dotnet-releaser publish --github-token ${{secrets.TOKEN_GITHUB}} src/dotnet-releaser.toml
+                    dotnet-releaser run --github-token "${{secrets.GITHUB_TOKEN}}" --github-token-extra "${{secrets.TOKEN_GITHUB}}" src/dotnet-releaser.toml
