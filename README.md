@@ -19,6 +19,7 @@ This makes it a lot more convenient to consume the videos on-demand when you're 
 - [x] Download videos by their video id
 - [x] Videos from channels can be downloaded selectively with interactive mode (default)
 - [x] All videos can be downloaded from channels non interactively
+- [x] Videos that are already downloaded can be skipped
 
 Installation [![Powered By: dotnet-releaser](https://img.shields.io/badge/powered%20by-dotnet--releaser-green)](https://github.com/xoofx/dotnet-releaser)
 ------------
