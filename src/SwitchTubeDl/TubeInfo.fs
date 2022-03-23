@@ -23,7 +23,8 @@ module TubeInfo =
             let! videoDetails =
                 Decode.videoDetails txt
                 |> Result.mapError TubeInfoError.DecodeError
-            // PublishedAt should always be set for videos that are found video detail endpoint. Otherwise it would return Not Found.
+            // PublishedAt & DurationInMilliseconds is always set for videos that are found video detail endpoint.
+            // Otherwise it would return Not Found.
             return VideoDetails.unsafeFromApi videoDetails
         }
 
@@ -66,7 +67,7 @@ module TubeInfo =
                 Api.allChannelVideos token channelId
                 |> mapApiError
 
-            let! txts =
+            let! videosAsTxts =
                 response
                 |> List.map Api.toText
                 |> Async.sequential
@@ -76,11 +77,15 @@ module TubeInfo =
                 >> Result.mapError TubeInfoError.DecodeError
 
             let! details =
-                List.map decoder txts
+                List.map decoder videosAsTxts
                 |> List.fold Folder.firstErrorList (Ok [])
 
+            let isComplete v =
+                Option.isSome v.PublishedAtOpt
+                && Option.isSome v.DurationInMillisecondsOpt
+
             return
-                List.filter (fun v -> Option.isSome v.PublishedAtOpt) details
+                List.filter isComplete details
                 |> List.map VideoDetails.unsafeFromApi
         }
 

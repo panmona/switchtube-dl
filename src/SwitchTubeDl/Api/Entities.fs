@@ -34,7 +34,8 @@ type VideoDetailsApi =
         /// API also returns non published videos
         PublishedAtOpt : System.DateTimeOffset option
         LicenseCode : string
-        DurationInMilliseconds : int
+        /// API also returns videos that haven't been processed
+        DurationInMillisecondsOpt : int option
     }
 
 module VideoDetailsApi =
@@ -48,7 +49,7 @@ module VideoDetailsApi =
                 EpisodeOpt = get.Optional.Field "episode" Decode.string
                 PublishedAtOpt = get.Optional.Field "published_at" Decode.datetimeOffset
                 LicenseCode = get.Required.Field "license_code" Decode.string
-                DurationInMilliseconds = get.Required.Field "duration_in_milliseconds" Decode.int
+                DurationInMillisecondsOpt = get.Optional.Field "duration_in_milliseconds" Decode.int
             }
         )
 
@@ -73,9 +74,9 @@ module VideoDetails =
             ChannelId = api.ChannelId
             Title = api.Title |> String.trim
             EpisodeOpt = api.EpisodeOpt
-            PublishedAt = api.PublishedAtOpt.Value
+            PublishedAt = Option.get api.PublishedAtOpt
             LicenseCode = api.LicenseCode
-            DurationInMilliseconds = api.DurationInMilliseconds
+            DurationInMilliseconds = Option.get api.DurationInMillisecondsOpt
         }
 
     let duration videoDetails =
