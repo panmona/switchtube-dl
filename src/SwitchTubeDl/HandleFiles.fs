@@ -14,6 +14,8 @@ module FullPath =
         Text.split [| Path.directorySeparator |] path
         |> Array.last
 
+    let mkFullPath basePath file = Path.combine basePath file |> FullPath
+
 [<RequireQualifiedAccess>]
 type ExistingFilesHandling =
     | KeepAsIs
@@ -31,7 +33,7 @@ type SaveFileError =
 [<RequireQualifiedAccess>]
 type FileWriteResult =
     | Written of FullPath
-    | Skipped
+    | Skipped of FullPath
 
 module HandleFiles =
     let private replaceInvalidChars str =
@@ -113,7 +115,7 @@ module HandleFiles =
         async {
             match File.exists path, overwrite with
             | true, ExistingFilesHandling.KeepAsIs -> return Error (SaveFileError.FileExists fullPath)
-            | true, ExistingFilesHandling.Skip -> return Ok FileWriteResult.Skipped
+            | true, ExistingFilesHandling.Skip -> return Ok (FileWriteResult.Skipped fullPath)
             | true, ExistingFilesHandling.Overwrite
             | false, _ ->
                 return!
@@ -133,12 +135,12 @@ module HandleFiles =
         let name = validFileName videoDetails.Title
         $"%s{episode}%s{name}_%s{videoDetails.Id}.%s{extension}"
 
-    let fullPath basePath file = Path.combine basePath file |> FullPath
-
     let fullPathForVideo basePath videoDetails videoPath =
         fileName videoDetails videoPath
-        |> fullPath basePath
+        |> FullPath.mkFullPath basePath
 
     let saveVideo overwrite basePath videoDetails videoPath stream =
-        let path = fullPathForVideo basePath videoDetails videoPath
+        let path =
+            fullPathForVideo basePath videoDetails videoPath
+
         saveFileFromStream overwrite path stream

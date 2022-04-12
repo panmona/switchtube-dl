@@ -44,7 +44,7 @@ let private fullPathTests =
                 let sep = Path.directorySeparator
                 let base' = $"%c{sep}my%c{sep}base%c{sep}path"
                 let fileName = "a_file.mp4"
-                let (FullPath path) = HandleFiles.fullPath base' fileName
+                let (FullPath path) = FullPath.mkFullPath base' fileName
 
                 Expect.equal path $"%c{sep}my%c{sep}base%c{sep}path%c{sep}a_file.mp4" "Didn't combine Path correctly"
         ]

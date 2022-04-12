@@ -7,12 +7,35 @@ open TubeDl
 open TubeDl.Cli
 open TubeDl.Rich
 
+let tryFindFileById cfg videoDetails videoPath =
+    let files =
+        System.IO.Directory.EnumerateFiles cfg.Path
+
+    let escId = Regex.escape videoDetails.Id
+
+    let escExt =
+        MediaType.extension videoPath.MediaType
+        |> Regex.escape
+
+    files
+    |> Seq.tryFind (Regex.matches $"_%s{escId}\.%s{escExt}$")
+
 let private shouldSkipDownload cfg videoDetails videoPath =
-    let (FullPath fullPath) =
+    let fullPath =
         HandleFiles.fullPathForVideo cfg.Path videoDetails videoPath
 
-    cfg.ExistingFileHandling = ExistingFilesHandling.Skip
-    && File.exists fullPath
+    let (FullPath path) = fullPath
+
+    match cfg.ExistingFileHandling with
+    | ExistingFilesHandling.Skip ->
+        if File.exists path then
+            Some fullPath
+        else
+            let fileOpt = tryFindFileById cfg videoDetails videoPath
+            match fileOpt with
+            | Some fileName -> FullPath.mkFullPath cfg.Path fileName |> Some
+            | None -> None
+    | _ -> None
 
 let handleDownload reporter cfg video =
     asyncResult {
@@ -22,11 +45,12 @@ let handleDownload reporter cfg video =
 
         reporter FinishedDlStep.Metadata
 
-        if shouldSkipDownload cfg video path then
-            let res = FileWriteResult.Skipped
+        match shouldSkipDownload cfg video path with
+        | Some path ->
+            let res = FileWriteResult.Skipped path
             FinishedDlStep.FileHandling res |> reporter
             return video.Title, res
-        else
+        | _ ->
             let! stream =
                 TubeInfo.downloadVideo cfg.Token path.Path
                 |> AsyncResult.mapError DownloadError.TubeInfoError
@@ -77,9 +101,10 @@ let runDownload cfg id =
         | FileWriteResult.Written (FullPath path) ->
             $":popcorn: [bold green]Success![/] The video [bold]%s{esc path}[/] was downloaded to [italic]%s{esc path}[/]"
             |> Markup.printn
-        | FileWriteResult.Skipped ->
+        | FileWriteResult.Skipped fullPath ->
+            let fileName = FullPath.last fullPath
             // Don't delete the extra space! It is needed so that this specific emoji has a spacing to the next character.
-            $":next_track_button:  [yellow bold]Skipped[/] saving of video \"[italic]%s{esc videoTitle}[/]\" as it already exists"
+            $":next_track_button:  [yellow bold]Skipped[/] saving of video \"[italic]%s{esc videoTitle}[/]\" as it already exists as \"[italic]%s{esc fileName}[/]\""
             |> Markup.printn
 
         return ()
