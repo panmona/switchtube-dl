@@ -1,7 +1,6 @@
 module TubeDl.Api
 
 open FsHttp
-open FsHttp.DslCE
 open FsToolkit.ErrorHandling
 open Microsoft.FSharpLu
 
@@ -29,18 +28,20 @@ let private apiPrefix = $"%s{baseUrl}/api/v1"
 let private tokenHeader (Token token) = $"Token %s{token}"
 
 let private videoDetails token videoId =
-    httpAsync {
+    http {
         GET $"%s{apiPrefix}/browse/videos/%s{videoId}"
         CacheControl "no-cache"
         Authorization (tokenHeader token)
     }
+    |> Request.sendAsync
 
 let private videoPaths token videoId =
-    httpAsync {
+    http {
         GET $"%s{apiPrefix}/browse/videos/%s{videoId}/video_variants"
         CacheControl "no-cache"
         Authorization (tokenHeader token)
     }
+    |> Request.sendAsync
 
 /// The asset path should contain the whole relative path
 let private downloadVideo _token relativeAssetPath =
@@ -48,18 +49,20 @@ let private downloadVideo _token relativeAssetPath =
         Uri.initRelative baseUrl relativeAssetPath
         |> Uri.absoluteUri
 
-    httpAsync {
+    http {
         GET uri
         CacheControl "no-cache"
     }
+    |> Request.sendAsync
 
 
 let private channelDetails token channelId =
-    httpAsync {
+    http {
         GET $"%s{apiPrefix}/browse/channels/%s{channelId}"
         CacheControl "no-cache"
         Authorization (tokenHeader token)
     }
+    |> Request.sendAsync
 
 let private handleResult (response : Response) =
     match response.statusCode with
@@ -72,11 +75,12 @@ let private handleResult (response : Response) =
     | _ -> Error ApiError
 
 let private channelVideos token url =
-    httpAsync {
+    http {
         GET url
         CacheControl "no-cache"
         Authorization (tokenHeader token)
     }
+    |> Request.sendAsync
 
 let allChannelVideos token channelId =
     let rec collectAllPages accResults nextUrl =
