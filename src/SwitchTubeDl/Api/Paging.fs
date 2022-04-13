@@ -1,6 +1,5 @@
 module TubeDl.Paging
 
-open FSharp.Data
 open Microsoft.FSharpLu
 
 open TubeDl
@@ -17,7 +16,8 @@ let tryParseLinkHeader (header : string) =
 
 let tryGetNextPageUri (headers : System.Net.Http.Headers.HttpResponseHeaders) =
     let headerOpt =
-        match headers.TryGetValues HttpResponseHeaders.Link with
+        let linkHeader = "Link"
+        match headers.TryGetValues linkHeader with
         | true, value -> value |> Seq.head |> Some
         | _ -> None
 
