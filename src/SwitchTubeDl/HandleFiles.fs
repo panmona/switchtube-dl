@@ -109,11 +109,11 @@ module HandleFiles =
             return fullPath
         }
 
-    let private saveFileFromStream overwrite fullPath stream =
+    let private saveFileFromStream filesHandling fullPath stream =
         let (FullPath path) = fullPath
 
         async {
-            match File.exists path, overwrite with
+            match File.exists path, filesHandling with
             | true, ExistingFilesHandling.KeepAsIs -> return Error (SaveFileError.FileExists fullPath)
             | true, ExistingFilesHandling.Skip -> return Ok (FileWriteResult.Skipped fullPath)
             | true, ExistingFilesHandling.Overwrite
@@ -139,8 +139,32 @@ module HandleFiles =
         fileName videoDetails videoPath
         |> FullPath.mkFullPath basePath
 
-    let saveVideo overwrite basePath videoDetails videoPath stream =
+    let saveVideo filesHandling basePath videoDetails videoPath stream =
         let path =
             fullPathForVideo basePath videoDetails videoPath
 
-        saveFileFromStream overwrite path stream
+        saveFileFromStream filesHandling path stream
+
+    let tryFindVideo filesHandling basePath videoDetails videoPath =
+        let (FullPath fullPath) =
+            fullPathForVideo basePath videoDetails videoPath
+
+        let tryFindByVideoId () =
+            let esc = Regex.escape
+            let ext = MediaType.extension videoPath.MediaType
+
+            let fileOpt =
+                $"_%s{esc videoDetails.Id}\.%s{esc ext}$"
+                |> File.tryFindFileByRegex basePath
+
+            match fileOpt with
+            | Some fileName -> FullPath.mkFullPath basePath fileName |> Some
+            | None -> None
+
+        match filesHandling with
+        | ExistingFilesHandling.Skip ->
+            if File.exists fullPath then
+                Some (FullPath fullPath)
+            else
+                tryFindByVideoId ()
+        | _ -> None

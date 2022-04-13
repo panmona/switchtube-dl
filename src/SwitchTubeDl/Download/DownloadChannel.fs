@@ -34,7 +34,7 @@ let private downloadVideos cfg logCallback (videos : VideoDetails list) =
         let handleDownload v =
             asyncResult {
                 let prefilledCallback = logCallback v.Title
-                return! DownloadVideo.handleDownload prefilledCallback cfg v
+                return! DownloadVideo.handleDownload cfg prefilledCallback v
             }
 
         let! allRes =
@@ -122,6 +122,7 @@ let private runDownloadFromDetails cfg metadata videoDetails =
                         |> Markup.log
                     | FileWriteResult.Skipped path ->
                         let fileName = FullPath.last path
+
                         $"[yellow bold]Skipped[/] saving of video \"[italic]%s{esc videoTitle}[/]\" as it already exists as \"[italic]%s{esc fileName}[/]\""
                         |> Markup.log
 

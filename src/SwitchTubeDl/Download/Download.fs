@@ -17,7 +17,7 @@ let private withToken cfg =
             input
             |> TubeDl.Api.Token
             |> TokenParseResult.Provided
-        | t -> t
+        | Provided t -> Provided t
 
     { cfg with
         TokenParseResult = providedToken

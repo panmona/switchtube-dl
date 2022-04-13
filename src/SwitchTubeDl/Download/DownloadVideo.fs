@@ -7,37 +7,7 @@ open TubeDl
 open TubeDl.Cli
 open TubeDl.Rich
 
-let tryFindFileById cfg videoDetails videoPath =
-    let files =
-        System.IO.Directory.EnumerateFiles cfg.Path
-
-    let escId = Regex.escape videoDetails.Id
-
-    let escExt =
-        MediaType.extension videoPath.MediaType
-        |> Regex.escape
-
-    files
-    |> Seq.tryFind (Regex.matches $"_%s{escId}\.%s{escExt}$")
-
-let private shouldSkipDownload cfg videoDetails videoPath =
-    let fullPath =
-        HandleFiles.fullPathForVideo cfg.Path videoDetails videoPath
-
-    let (FullPath path) = fullPath
-
-    match cfg.ExistingFileHandling with
-    | ExistingFilesHandling.Skip ->
-        if File.exists path then
-            Some fullPath
-        else
-            let fileOpt = tryFindFileById cfg videoDetails videoPath
-            match fileOpt with
-            | Some fileName -> FullPath.mkFullPath cfg.Path fileName |> Some
-            | None -> None
-    | _ -> None
-
-let handleDownload reporter cfg video =
+let handleDownload cfg reporter video =
     asyncResult {
         let! path =
             TubeInfo.pathForVideo cfg.Token video.Id
@@ -45,12 +15,15 @@ let handleDownload reporter cfg video =
 
         reporter FinishedDlStep.Metadata
 
-        match shouldSkipDownload cfg video path with
-        | Some path ->
-            let res = FileWriteResult.Skipped path
+        let existingVideoOpt =
+            HandleFiles.tryFindVideo cfg.ExistingFileHandling cfg.Path video path
+
+        match existingVideoOpt with
+        | Some fullPath ->
+            let res = FileWriteResult.Skipped fullPath
             FinishedDlStep.FileHandling res |> reporter
             return video.Title, res
-        | _ ->
+        | None ->
             let! stream =
                 TubeInfo.downloadVideo cfg.Token path.Path
                 |> AsyncResult.mapError DownloadError.TubeInfoError
@@ -73,7 +46,7 @@ let private handleDownloadFull reporter cfg id =
             TubeInfo.videoInfo cfg.Token id
             |> AsyncResult.mapError DownloadError.TubeInfoError
 
-        return! handleDownload reporter cfg videoInfo
+        return! handleDownload cfg reporter videoInfo
     }
 
 let runDownload cfg id =
