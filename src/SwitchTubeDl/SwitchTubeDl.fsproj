@@ -27,6 +27,7 @@
         <Compile Include="Util\Regex.fs" />
         <Compile Include="Util\File.fs" />
         <Compile Include="Util\Int.fs" />
+        <Compile Include="Util\Directory.fs" />
         <Compile Include="Api\Entities.fs" />
         <Compile Include="Api\Paging.fs" />
         <Compile Include="Api\Api.fs" />

@@ -155,7 +155,7 @@ module HandleFiles =
 
             let fileOpt =
                 $"_%s{esc videoDetails.Id}\.%s{esc ext}$"
-                |> File.tryFindFileByRegex basePath
+                |> Directory.tryFindFileByRegex basePath
 
             match fileOpt with
             | Some fileName -> FullPath.mkFullPath basePath fileName |> Some
