@@ -7,14 +7,7 @@ open TubeDl
 open TubeDl.Cli
 open TubeDl.Rich
 
-let private shouldSkipDownload cfg videoDetails videoPath =
-    let (FullPath fullPath) =
-        HandleFiles.fullPathForVideo cfg.Path videoDetails videoPath
-
-    cfg.ExistingFileHandling = ExistingFilesHandling.Skip
-    && File.exists fullPath
-
-let handleDownload reporter cfg video =
+let handleDownload cfg reporter video =
     asyncResult {
         let! path =
             TubeInfo.pathForVideo cfg.Token video.Id
@@ -22,11 +15,15 @@ let handleDownload reporter cfg video =
 
         reporter FinishedDlStep.Metadata
 
-        if shouldSkipDownload cfg video path then
-            let res = FileWriteResult.Skipped
+        let existingVideoOpt =
+            HandleFiles.tryFindVideo cfg.ExistingFileHandling cfg.Path video path
+
+        match existingVideoOpt with
+        | Some fullPath ->
+            let res = FileWriteResult.Skipped fullPath
             FinishedDlStep.FileHandling res |> reporter
             return video.Title, res
-        else
+        | None ->
             let! stream =
                 TubeInfo.downloadVideo cfg.Token path.Path
                 |> AsyncResult.mapError DownloadError.TubeInfoError
@@ -49,7 +46,7 @@ let private handleDownloadFull reporter cfg id =
             TubeInfo.videoInfo cfg.Token id
             |> AsyncResult.mapError DownloadError.TubeInfoError
 
-        return! handleDownload reporter cfg videoInfo
+        return! handleDownload cfg reporter videoInfo
     }
 
 let runDownload cfg id =
@@ -77,9 +74,10 @@ let runDownload cfg id =
         | FileWriteResult.Written (FullPath path) ->
             $":popcorn: [bold green]Success![/] The video [bold]%s{esc path}[/] was downloaded to [italic]%s{esc path}[/]"
             |> Markup.printn
-        | FileWriteResult.Skipped ->
+        | FileWriteResult.Skipped fullPath ->
+            let fileName = FullPath.last fullPath
             // Don't delete the extra space! It is needed so that this specific emoji has a spacing to the next character.
-            $":next_track_button:  [yellow bold]Skipped[/] saving of video \"[italic]%s{esc videoTitle}[/]\" as it already exists"
+            $":next_track_button:  [yellow bold]Skipped[/] saving of video \"[italic]%s{esc videoTitle}[/]\" as it already exists as \"[italic]%s{esc fileName}[/]\""
             |> Markup.printn
 
         return ()

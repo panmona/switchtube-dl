@@ -34,7 +34,7 @@ let private downloadVideos cfg logCallback (videos : VideoDetails list) =
         let handleDownload v =
             asyncResult {
                 let prefilledCallback = logCallback v.Title
-                return! DownloadVideo.handleDownload prefilledCallback cfg v
+                return! DownloadVideo.handleDownload cfg prefilledCallback v
             }
 
         let! allRes =
@@ -106,22 +106,24 @@ let private runDownloadFromDetails cfg metadata videoDetails =
     asyncResult {
         let callback _ctx =
             taskResult {
-                let showFinishedStep video (step : FinishedDlStep) =
+                let showFinishedStep videoTitle (step : FinishedDlStep) =
                     match step with
                     | FinishedDlStep.Metadata ->
-                        Markup.log $"Received video [yellow bold]metadata[/] of \"[italic]%s{esc video}[/]\""
+                        Markup.log $"Received video [yellow bold]metadata[/] of \"[italic]%s{esc videoTitle}[/]\""
                     | FinishedDlStep.Download ->
-                        Markup.log $"Received video [yellow bold]file[/] \"[italic]%s{esc video}[/]\""
+                        Markup.log $"Received video [yellow bold]file[/] \"[italic]%s{esc videoTitle}[/]\""
                     | FinishedDlStep.FileHandling res ->
 
                     match res with
                     | FileWriteResult.Written path ->
                         let fileName = FullPath.last path
 
-                        $"[yellow bold]Saved video[/] \"[italic]%s{esc video}[/]\" as \"[italic]%s{esc fileName}[/]\""
+                        $"[green bold]Saved video[/] \"[italic]%s{esc videoTitle}[/]\" as \"[italic]%s{esc fileName}[/]\""
                         |> Markup.log
-                    | FileWriteResult.Skipped ->
-                        $"[yellow bold]Skipped[/] saving of video \"[italic]%s{esc video}[/]\" as it already exists"
+                    | FileWriteResult.Skipped path ->
+                        let fileName = FullPath.last path
+
+                        $"[yellow bold]Skipped[/] saving of video \"[italic]%s{esc videoTitle}[/]\" as it already exists as \"[italic]%s{esc fileName}[/]\""
                         |> Markup.log
 
                 return! downloadVideos cfg showFinishedStep videoDetails

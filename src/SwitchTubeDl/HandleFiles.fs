@@ -14,6 +14,8 @@ module FullPath =
         Text.split [| Path.directorySeparator |] path
         |> Array.last
 
+    let mkFullPath basePath file = Path.combine basePath file |> FullPath
+
 [<RequireQualifiedAccess>]
 type ExistingFilesHandling =
     | KeepAsIs
@@ -31,7 +33,7 @@ type SaveFileError =
 [<RequireQualifiedAccess>]
 type FileWriteResult =
     | Written of FullPath
-    | Skipped
+    | Skipped of FullPath
 
 module HandleFiles =
     let private replaceInvalidChars str =
@@ -107,13 +109,13 @@ module HandleFiles =
             return fullPath
         }
 
-    let private saveFileFromStream overwrite fullPath stream =
+    let private saveFileFromStream filesHandling fullPath stream =
         let (FullPath path) = fullPath
 
         async {
-            match File.exists path, overwrite with
+            match File.exists path, filesHandling with
             | true, ExistingFilesHandling.KeepAsIs -> return Error (SaveFileError.FileExists fullPath)
-            | true, ExistingFilesHandling.Skip -> return Ok FileWriteResult.Skipped
+            | true, ExistingFilesHandling.Skip -> return Ok (FileWriteResult.Skipped fullPath)
             | true, ExistingFilesHandling.Overwrite
             | false, _ ->
                 return!
@@ -133,12 +135,36 @@ module HandleFiles =
         let name = validFileName videoDetails.Title
         $"%s{episode}%s{name}_%s{videoDetails.Id}.%s{extension}"
 
-    let fullPath basePath file = Path.combine basePath file |> FullPath
-
     let fullPathForVideo basePath videoDetails videoPath =
         fileName videoDetails videoPath
-        |> fullPath basePath
+        |> FullPath.mkFullPath basePath
 
-    let saveVideo overwrite basePath videoDetails videoPath stream =
-        let path = fullPathForVideo basePath videoDetails videoPath
-        saveFileFromStream overwrite path stream
+    let saveVideo filesHandling basePath videoDetails videoPath stream =
+        let path =
+            fullPathForVideo basePath videoDetails videoPath
+
+        saveFileFromStream filesHandling path stream
+
+    let tryFindVideo filesHandling basePath videoDetails videoPath =
+        let (FullPath fullPath) =
+            fullPathForVideo basePath videoDetails videoPath
+
+        let tryFindByVideoId () =
+            let esc = Regex.escape
+            let ext = MediaType.extension videoPath.MediaType
+
+            let fileOpt =
+                $"_%s{esc videoDetails.Id}\.%s{esc ext}$"
+                |> Directory.tryFindFileByRegex basePath
+
+            match fileOpt with
+            | Some fileName -> FullPath.mkFullPath basePath fileName |> Some
+            | None -> None
+
+        match filesHandling with
+        | ExistingFilesHandling.Skip ->
+            if File.exists fullPath then
+                Some (FullPath fullPath)
+            else
+                tryFindByVideoId ()
+        | _ -> None
