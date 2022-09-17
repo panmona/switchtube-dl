@@ -1,3 +1,4 @@
+[<RequireQualifiedAccess>]
 module TubeDl.GitHub
 
 let url = "https://github.com/panmau/switchtube-dl/issues/new"

@@ -1,6 +1,8 @@
+[<RequireQualifiedAccess>]
 module TubeDl.TimeSpan
 
 open System
+open Microsoft.FSharp.Core
 
 let fromMilliseconds millis =
     float millis |> TimeSpan.FromMilliseconds

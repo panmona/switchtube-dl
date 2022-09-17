@@ -1,3 +1,4 @@
+[<RequireQualifiedAccess>]
 module TubeDl.Rich.StatusContext
 
 open Spectre.Console

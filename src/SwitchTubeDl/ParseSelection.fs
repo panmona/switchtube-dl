@@ -1,9 +1,8 @@
+[<RequireQualifiedAccess>]
 module TubeDl.ParseSelection
 
 open Microsoft.FSharpLu
 open FsToolkit.ErrorHandling
-
-open TubeDl.Int
 
 let (|Range|_|) str =
     let range = Text.split [| '-' |] str

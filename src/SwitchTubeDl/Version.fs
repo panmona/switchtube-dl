@@ -1,3 +1,4 @@
+[<RequireQualifiedAccess>]
 module TubeDl.Version
 
 open System.Reflection

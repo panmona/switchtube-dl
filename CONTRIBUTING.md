@@ -83,3 +83,6 @@ Ensure that the fantomas tool is up to date:
 ```bash
 dotnet tool restore
 ```
+
+- All modules should have the [<RequireQualifiedAccess>] attribute
+- All DUs should have the [<RequireQualifiedAccess>] attribute. An exception to this rule are single case DUs with a value.

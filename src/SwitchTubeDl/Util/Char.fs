@@ -1,3 +1,4 @@
+[<RequireQualifiedAccess>]
 module TubeDl.Char
 
 open System.Globalization

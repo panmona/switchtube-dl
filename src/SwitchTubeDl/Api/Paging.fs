@@ -1,3 +1,4 @@
+[<RequireQualifiedAccess>]
 module TubeDl.Paging
 
 open Microsoft.FSharpLu

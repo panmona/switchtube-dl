@@ -1,3 +1,4 @@
+[<RequireQualifiedAccess>]
 module TubeDl.Tests.Runner
 
 open Expecto

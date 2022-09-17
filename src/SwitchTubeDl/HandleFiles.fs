@@ -1,7 +1,6 @@
 namespace TubeDl
 
 open System.IO
-open FsHttp.Helper
 open FsToolkit.ErrorHandling
 open Microsoft.FSharpLu
 
@@ -9,6 +8,7 @@ open TubeDl
 
 type FullPath = | FullPath of string
 
+[<RequireQualifiedAccess>]
 module FullPath =
     let last (FullPath path) =
         Text.split [| Path.directorySeparator |] path |> Array.last
@@ -34,6 +34,7 @@ type FileWriteResult =
     | Written of FullPath
     | Skipped of FullPath
 
+[<RequireQualifiedAccess>]
 module HandleFiles =
     let private replaceInvalidChars str =
         // This list may be incomplete
@@ -91,16 +92,15 @@ module HandleFiles =
                 | :? IOException -> Error SaveFileError.IOError
                 | :? System.NotSupportedException -> Error (SaveFileError.InvalidPath fullPath)
 
-            let! _ =
-                task {
-                    try
-                        let! res = stream.CopyToAsync file
-                        return Ok res
-                    with
-                    | :? IOException
-                    | :? System.ObjectDisposedException
-                    | :? System.Threading.Tasks.TaskCanceledException -> return Error SaveFileError.IOError
-                }
+            let! _ = task {
+                try
+                    let! res = stream.CopyToAsync file
+                    return Ok res
+                with
+                | :? IOException
+                | :? System.ObjectDisposedException
+                | :? System.Threading.Tasks.TaskCanceledException -> return Error SaveFileError.IOError
+            }
 
             return fullPath
         }

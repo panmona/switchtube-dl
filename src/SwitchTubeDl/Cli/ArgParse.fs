@@ -5,7 +5,6 @@ open FsToolkit.ErrorHandling
 open Microsoft.FSharpLu
 
 open TubeDl
-open TubeDl.Cli
 
 [<RequireQualifiedAccess>]
 type DownloadType =
@@ -15,44 +14,44 @@ type DownloadType =
 [<RequireQualifiedAccess>]
 type ChannelFilter = | All
 
+[<RequireQualifiedAccess>]
 type TokenParseResult =
     | Ask
-    | Provided of Api.Token
+    | Provided of Token
 
 module TokenParseResult =
     let unsafeExtract =
         function
-        | Ask -> failwith "Please provide a valid token"
-        | Provided token -> token
+        | TokenParseResult.Ask -> failwith "Please provide a valid token"
+        | TokenParseResult.Provided token -> token
 
-type CliCfg =
-    {
-        DownloadType : DownloadType
-        TokenParseResult : TokenParseResult
-        Path : string
-        ExistingFileHandling : ExistingFilesHandling
-        ChannelFilter : ChannelFilter option
-    }
+type CliCfg = {
+    DownloadType : DownloadType
+    TokenParseResult : TokenParseResult
+    Path : string
+    ExistingFileHandling : ExistingFilesHandling
+    ChannelFilter : ChannelFilter option
+}
 
-type CompleteCfg =
-    {
-        DownloadType : DownloadType
-        Token : Api.Token
-        Path : string
-        ExistingFileHandling : ExistingFilesHandling
-        ChannelFilter : ChannelFilter option
-    }
+type CompleteCfg = {
+    DownloadType : DownloadType
+    Token : Token
+    Path : string
+    ExistingFileHandling : ExistingFilesHandling
+    ChannelFilter : ChannelFilter option
+}
 
+[<RequireQualifiedAccess>]
 module CompleteCfg =
-    let unsafeFromCliCfg (cliCfg : CliCfg) =
-        {
-            DownloadType = cliCfg.DownloadType
-            Token = TokenParseResult.unsafeExtract cliCfg.TokenParseResult
-            Path = cliCfg.Path
-            ExistingFileHandling = cliCfg.ExistingFileHandling
-            ChannelFilter = cliCfg.ChannelFilter
-        }
+    let unsafeFromCliCfg (cliCfg : CliCfg) = {
+        DownloadType = cliCfg.DownloadType
+        Token = TokenParseResult.unsafeExtract cliCfg.TokenParseResult
+        Path = cliCfg.Path
+        ExistingFileHandling = cliCfg.ExistingFileHandling
+        ChannelFilter = cliCfg.ChannelFilter
+    }
 
+[<RequireQualifiedAccess>]
 type CfgParseError =
     | InvalidPath
     | DownloadTypeMissing
@@ -60,6 +59,7 @@ type CfgParseError =
 // Alias for less noise
 type ParseRes = ParseResults<CliArgs>
 
+[<RequireQualifiedAccess>]
 module CliArgParse =
     // If all download types would be their separate subcommands this wouldn't be required.
     // But that has a usability tradeoff for the user.
@@ -71,7 +71,7 @@ module CliArgParse =
         match video, channel with
         | true, _ -> results.GetResult CliArgs.Video |> DownloadType.Video |> Ok
         | _, true -> results.GetResult CliArgs.Channel |> DownloadType.Channel |> Ok
-        | false, false -> Error DownloadTypeMissing
+        | false, false -> Error CfgParseError.DownloadTypeMissing
 
     let tryGetPath (results : ParseRes) =
         match results.Contains CliArgs.Path with
@@ -83,7 +83,7 @@ module CliArgParse =
 
             match fullyQualified, valid with
             | true, Some _ -> Ok path
-            | _ -> Error InvalidPath
+            | _ -> Error CfgParseError.InvalidPath
         | false -> Env.workingDir |> Ok
 
     let tryGetChannelFilter (results : ParseRes) =
@@ -94,36 +94,34 @@ module CliArgParse =
         | true -> Some ChannelFilter.All |> Ok
         | false -> None |> Ok
 
-    let initCfgFromArgs results =
-        result {
-            let! dlType = tryGetDownloadType results
+    let initCfgFromArgs results = result {
+        let! dlType = tryGetDownloadType results
 
-            let token =
-                match results.Contains CliArgs.Token with
-                | true -> results.GetResult CliArgs.Token |> Api.Token |> TokenParseResult.Provided
-                | false -> TokenParseResult.Ask
+        let token =
+            match results.Contains CliArgs.Token with
+            | true -> results.GetResult CliArgs.Token |> Token |> TokenParseResult.Provided
+            | false -> TokenParseResult.Ask
 
-            let! path = tryGetPath results
+        let! path = tryGetPath results
 
-            let existingFileHandling =
-                let skip = results.Contains CliArgs.Skip
-                let force = results.Contains CliArgs.Force
+        let existingFileHandling =
+            let skip = results.Contains CliArgs.Skip
+            let force = results.Contains CliArgs.Force
 
-                match skip, force with
-                | true, _ -> ExistingFilesHandling.Skip
-                | _, true -> ExistingFilesHandling.Overwrite
-                | false, false -> ExistingFilesHandling.KeepAsIs
+            match skip, force with
+            | true, _ -> ExistingFilesHandling.Skip
+            | _, true -> ExistingFilesHandling.Overwrite
+            | false, false -> ExistingFilesHandling.KeepAsIs
 
-            let! channelFilterOpt = tryGetChannelFilter results
+        let! channelFilterOpt = tryGetChannelFilter results
 
-            let cfg =
-                {
-                    DownloadType = dlType
-                    TokenParseResult = token
-                    Path = path
-                    ExistingFileHandling = existingFileHandling
-                    ChannelFilter = channelFilterOpt
-                }
-
-            return cfg
+        let cfg = {
+            DownloadType = dlType
+            TokenParseResult = token
+            Path = path
+            ExistingFileHandling = existingFileHandling
+            ChannelFilter = channelFilterOpt
         }
+
+        return cfg
+    }

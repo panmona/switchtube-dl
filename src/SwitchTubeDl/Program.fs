@@ -1,8 +1,8 @@
-﻿module TubeDl.Program
+﻿[<RequireQualifiedAccess>]
+module TubeDl.Program
 
 open Argu
 
-open TubeDl
 open TubeDl.Cli
 open TubeDl.Download
 

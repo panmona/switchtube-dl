@@ -1,3 +1,4 @@
+[<RequireQualifiedAccess>]
 module TubeDl.Rich.TextPrompt
 
 open Spectre.Console

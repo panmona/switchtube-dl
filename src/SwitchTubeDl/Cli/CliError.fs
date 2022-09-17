@@ -3,18 +3,20 @@ namespace TubeDl.Cli
 open TubeDl
 open TubeDl.Rich
 
+[<RequireQualifiedAccess>]
 type DownloadError =
     | TubeInfoError of TubeInfoError
     | SaveFileError of SaveFileError
 
+[<RequireQualifiedAccess>]
 module DownloadError =
     let errorMsg (cfg : CompleteCfg) (error : DownloadError) =
         let apiErrorMsg =
             function
-            | Api.UnauthorizedAccess -> "A valid token needs to be provided."
-            | Api.ResourceNotFound -> "An existing id needs to be provided."
-            | Api.ApiError
-            | Api.TooManyRequests -> "SwitchTube encountered an error, please try again later."
+            | ApiError.UnauthorizedAccess -> "A valid token needs to be provided."
+            | ApiError.ResourceNotFound -> "An existing id needs to be provided."
+            | ApiError.ApiError
+            | ApiError.TooManyRequests -> "SwitchTube encountered an error, please try again later."
 
         let fileErrorMsg =
             function
@@ -31,13 +33,14 @@ module DownloadError =
                 "There was an IO error while saving the file. Please check your path and try again."
 
         match error with
-        | TubeInfoError (TubeInfoError.ApiError apiError) -> apiErrorMsg apiError
-        | TubeInfoError (TubeInfoError.DecodeError s) ->
+        | DownloadError.TubeInfoError (TubeInfoError.ApiError apiError) -> apiErrorMsg apiError
+        | DownloadError.TubeInfoError (TubeInfoError.DecodeError s) ->
             "There was an error while decoding the JSON received from the API.\n"
             + $"%s{GitHub.createIssue} that also contains the following info:\n\n"
             + $"[italic]%s{esc s}[/]"
-        | SaveFileError fileError -> fileErrorMsg fileError
+        | DownloadError.SaveFileError fileError -> fileErrorMsg fileError
 
+[<RequireQualifiedAccess>]
 type CliError =
     | ArgumentsNotSpecified
     | DownloadError of DownloadError
@@ -49,15 +52,15 @@ module CliError =
         | Error err ->
 
         match err with
-        | ArgumentsNotSpecified -> 1
-        | DownloadError dlErr ->
+        | CliError.ArgumentsNotSpecified -> 1
+        | CliError.DownloadError dlErr ->
 
         match dlErr with
-        | TubeInfoError (TubeInfoError.ApiError apiErr) ->
+        | DownloadError.TubeInfoError (TubeInfoError.ApiError apiErr) ->
             match apiErr with
-            | Api.UnauthorizedAccess -> 2
-            | Api.ResourceNotFound -> 3
-            | Api.TooManyRequests -> 5
-            | Api.ApiError -> 6
-        | TubeInfoError (TubeInfoError.DecodeError _) -> 7
-        | SaveFileError _ -> 8
+            | ApiError.UnauthorizedAccess -> 2
+            | ApiError.ResourceNotFound -> 3
+            | ApiError.TooManyRequests -> 5
+            | ApiError.ApiError -> 6
+        | DownloadError.TubeInfoError (TubeInfoError.DecodeError _) -> 7
+        | DownloadError.SaveFileError _ -> 8

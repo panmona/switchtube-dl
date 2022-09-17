@@ -1,3 +1,4 @@
+[<RequireQualifiedAccess>]
 module TubeDl.Decode
 
 open Thoth.Json.Net
