@@ -44,9 +44,7 @@ let private downloadVideos cfg logCallback (videos : VideoDetails list) =
             |> Async.sequential
 
         // Mapping the results for proper error reporting to the parent
-        return
-            List.concat allRes
-            |> List.fold Folder.firstErrorSingleItems (Ok [])
+        return List.concat allRes |> List.fold Folder.firstErrorSingleItems (Ok [])
     }
 
 let private printMetadataTable metadata =
@@ -89,10 +87,7 @@ let private getSelectionInputFromPrompt max =
         match ParseSelection.isValidAndInRange (1, max) input with
         | ParseSelection.Valid -> Ok ()
         | ParseSelection.InvalidTokens e ->
-            let tokens =
-                e
-                |> List.map (fun e -> $"[italic]%s{e}[/]")
-                |> String.concat ", "
+            let tokens = e |> List.map (fun e -> $"[italic]%s{e}[/]") |> String.concat ", "
 
             $"%s{errorAnnouncement} [bold]Wasn't able to parse your input.[/]\nThe following tokens were invalid: %s{tokens}"
             |> Error
@@ -150,9 +145,7 @@ let private runDownloadInteractive cfg metadata =
         + "Separate the entries with [yellow bold],[/] and use [yellow bold]-[/] to specify a range ([italic]e.g.: \"1, 3-7, 10\"[/])"
         |> Markup.printn
 
-        let selection =
-            List.length metadata.Videos
-            |> getSelectionInputFromPrompt
+        let selection = List.length metadata.Videos |> getSelectionInputFromPrompt
 
         let videoIndexes =
             selection

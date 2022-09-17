@@ -19,8 +19,7 @@ module Column =
     let withAlign title align = { Title = title ; Alignment = align }
 
 let setBorder table border =
-    HasTableBorderExtensions.Border (table, border)
-    |> ignore
+    HasTableBorderExtensions.Border (table, border) |> ignore
 
 let addColumns (table : Table) columns =
     let addColumn col =

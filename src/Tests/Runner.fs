@@ -11,7 +11,6 @@ let main args =
             }
             args
             AllTests.tests
-    with
-    | e ->
+    with e ->
         printfn "Error: %s" e.Message
         -1

@@ -80,8 +80,7 @@ module VideoDetails =
         }
 
     let duration videoDetails =
-        videoDetails.DurationInMilliseconds
-        |> TimeSpan.fromMilliseconds
+        videoDetails.DurationInMilliseconds |> TimeSpan.fromMilliseconds
 
 [<RequireQualifiedAccess>]
 type MediaType =

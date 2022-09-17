@@ -97,9 +97,4 @@ let private isValidAndInRangeTests =
         ]
 
 let tests =
-    testList
-        "Parse Selection"
-        [
-            tryParseSelectionTests
-            isValidAndInRangeTests
-        ]
+    testList "Parse Selection" [ tryParseSelectionTests ; isValidAndInRangeTests ]

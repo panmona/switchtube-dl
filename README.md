@@ -8,12 +8,6 @@ This makes it a lot more convenient to consume the videos on-demand when you're 
 [![Release](https://img.shields.io/github/v/tag/panmau/switchtube-dl?label=version)](https://github.com/panmau/switchtube-dl/releases/latest)
 [![CI](https://github.com/panmau/switchtube-dl/actions/workflows/ci.yml/badge.svg)](https://github.com/panmau/switchtube-dl/actions/workflows/ci.yml)
 
-> **Disclaimer**:
->
-> This isn't yet thoroughly tested. It will get tested in-depth throughout the next academic term.
->
-> Please report any issues that you find.
-
 ## Features
 
 - [x] Download videos by their video id
@@ -44,7 +38,7 @@ the [latest release](https://github.com/panmau/switchtube-dl/releases/latest) an
 ### macOS
 
 ```bash
-brew install panmau/panmau/switchtube-dl
+brew install panmona/panmona/switchtube-dl
 ```
 
 ### Windows

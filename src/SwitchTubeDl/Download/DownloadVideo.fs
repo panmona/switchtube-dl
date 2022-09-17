@@ -34,8 +34,7 @@ let handleDownload cfg reporter video =
                 HandleFiles.saveVideo cfg.ExistingFileHandling cfg.Path video path stream
                 |> AsyncResult.mapError DownloadError.SaveFileError
 
-            FinishedDlStep.FileHandling writeResult
-            |> reporter
+            FinishedDlStep.FileHandling writeResult |> reporter
 
             return video.Title, writeResult
     }

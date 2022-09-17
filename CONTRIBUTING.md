@@ -13,7 +13,7 @@
 Clone the repository
 
 ```bash
-git clone git@github.com:panmau/switchtube-dl.git
+git clone git@github.com:panmona/switchtube-dl.git
 ```
 
 Go to the project directory
@@ -71,7 +71,7 @@ If you've gone the extra mile and have a patch that fixes the issue, you should 
 
 #### **Coding Conventions**
 
-All source code is formatted according to the [Styleguide](https://github.com/G-Research/fsharp-formatting-conventions).
+All source code is formatted according to the [Styleguide](https://github.com/G-Research/fsharp-formatting-conventions), with the exception of us using the Stroustroup Style.
 You can format it that way by using this command:
 
 ```bash

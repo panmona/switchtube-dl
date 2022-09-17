@@ -11,8 +11,7 @@ type FullPath = | FullPath of string
 
 module FullPath =
     let last (FullPath path) =
-        Text.split [| Path.directorySeparator |] path
-        |> Array.last
+        Text.split [| Path.directorySeparator |] path |> Array.last
 
     let mkFullPath basePath file = Path.combine basePath file |> FullPath
 
@@ -60,10 +59,7 @@ module HandleFiles =
             ]
             |> List.contains c
 
-        str
-        |> String.toCharArray
-        |> Array.filter (isInvalid >> not)
-        |> System.String
+        str |> String.toCharArray |> Array.filter (isInvalid >> not) |> System.String
 
     let private validFileName str =
         let isSuboptimalChar =
@@ -117,10 +113,7 @@ module HandleFiles =
             | true, ExistingFilesHandling.KeepAsIs -> return Error (SaveFileError.FileExists fullPath)
             | true, ExistingFilesHandling.Skip -> return Ok (FileWriteResult.Skipped fullPath)
             | true, ExistingFilesHandling.Overwrite
-            | false, _ ->
-                return!
-                    saveFile fullPath stream
-                    |> AsyncResult.map FileWriteResult.Written
+            | false, _ -> return! saveFile fullPath stream |> AsyncResult.map FileWriteResult.Written
         }
 
     let fileName videoDetails videoPath =
@@ -136,18 +129,15 @@ module HandleFiles =
         $"%s{episode}%s{name}_%s{videoDetails.Id}.%s{extension}"
 
     let fullPathForVideo basePath videoDetails videoPath =
-        fileName videoDetails videoPath
-        |> FullPath.mkFullPath basePath
+        fileName videoDetails videoPath |> FullPath.mkFullPath basePath
 
     let saveVideo filesHandling basePath videoDetails videoPath stream =
-        let path =
-            fullPathForVideo basePath videoDetails videoPath
+        let path = fullPathForVideo basePath videoDetails videoPath
 
         saveFileFromStream filesHandling path stream
 
     let tryFindVideo filesHandling basePath videoDetails videoPath =
-        let (FullPath fullPath) =
-            fullPathForVideo basePath videoDetails videoPath
+        let (FullPath fullPath) = fullPathForVideo basePath videoDetails videoPath
 
         let tryFindByVideoId () =
             let esc = Regex.escape

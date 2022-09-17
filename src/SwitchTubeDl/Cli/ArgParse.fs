@@ -69,14 +69,8 @@ module CliArgParse =
         let video = results.Contains CliArgs.Video
 
         match video, channel with
-        | true, _ ->
-            results.GetResult CliArgs.Video
-            |> DownloadType.Video
-            |> Ok
-        | _, true ->
-            results.GetResult CliArgs.Channel
-            |> DownloadType.Channel
-            |> Ok
+        | true, _ -> results.GetResult CliArgs.Video |> DownloadType.Video |> Ok
+        | _, true -> results.GetResult CliArgs.Channel |> DownloadType.Channel |> Ok
         | false, false -> Error DownloadTypeMissing
 
     let tryGetPath (results : ParseRes) =
@@ -106,10 +100,7 @@ module CliArgParse =
 
             let token =
                 match results.Contains CliArgs.Token with
-                | true ->
-                    results.GetResult CliArgs.Token
-                    |> Api.Token
-                    |> TokenParseResult.Provided
+                | true -> results.GetResult CliArgs.Token |> Api.Token |> TokenParseResult.Provided
                 | false -> TokenParseResult.Ask
 
             let! path = tryGetPath results

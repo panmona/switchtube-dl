@@ -45,9 +45,7 @@ let private videoPaths token videoId =
 
 /// The asset path should contain the whole relative path
 let private downloadVideo _token relativeAssetPath =
-    let uri =
-        Uri.initRelative baseUrl relativeAssetPath
-        |> Uri.absoluteUri
+    let uri = Uri.initRelative baseUrl relativeAssetPath |> Uri.absoluteUri
 
     http {
         GET uri
@@ -85,9 +83,7 @@ let private channelVideos token url =
 let allChannelVideos token channelId =
     let rec collectAllPages accResults nextUrl =
         asyncResult {
-            let! response =
-                channelVideos token nextUrl
-                |> Async.map handleResult
+            let! response = channelVideos token nextUrl |> Async.map handleResult
 
             let newResults = accResults @ [ response ]
 

@@ -14,9 +14,7 @@ let private withToken cfg =
             Markup.printn "If you don't have one generate one at [italic]https://tube.switch.ch/access_tokens[/]"
             let input = TextPrompt.secretPrompt "> "
 
-            input
-            |> TubeDl.Api.Token
-            |> TokenParseResult.Provided
+            input |> TubeDl.Api.Token |> TokenParseResult.Provided
         | Provided t -> Provided t
 
     { cfg with
