@@ -45,10 +45,10 @@ dotnet run
 #### **Did you find a bug?**
 
 * **Ensure the bug was not already reported** by searching on GitHub
-  under [Issues](https://github.com/panmau/switchtube-dl/issues).
+  under [Issues](https://github.com/panmona/switchtube-dl/issues).
 
 * If you're unable to find an open issue addressing the
-  problem, [open a new one](https://github.com/panmau/switchtube-dl/issues/new). Be sure to include a **title and clear
+  problem, [open a new one](https://github.com/panmona/switchtube-dl/issues/new). Be sure to include a **title and clear
   description** and as much relevant information as possible demonstrating the expected behavior that is not occurring.
 
 * Use the bug report template to create the issue.
