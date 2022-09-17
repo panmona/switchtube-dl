@@ -13,7 +13,7 @@
 Clone the repository
 
 ```bash
-git clone git@github.com:panmau/switchtube-dl.git
+git clone git@github.com:panmona/switchtube-dl.git
 ```
 
 Go to the project directory
@@ -45,10 +45,10 @@ dotnet run
 #### **Did you find a bug?**
 
 * **Ensure the bug was not already reported** by searching on GitHub
-  under [Issues](https://github.com/panmau/switchtube-dl/issues).
+  under [Issues](https://github.com/panmona/switchtube-dl/issues).
 
 * If you're unable to find an open issue addressing the
-  problem, [open a new one](https://github.com/panmau/switchtube-dl/issues/new). Be sure to include a **title and clear
+  problem, [open a new one](https://github.com/panmona/switchtube-dl/issues/new). Be sure to include a **title and clear
   description** and as much relevant information as possible demonstrating the expected behavior that is not occurring.
 
 * Use the bug report template to create the issue.
@@ -71,7 +71,7 @@ If you've gone the extra mile and have a patch that fixes the issue, you should 
 
 #### **Coding Conventions**
 
-All source code is formatted according to the [Styleguide](https://github.com/G-Research/fsharp-formatting-conventions).
+All source code is formatted according to the [Styleguide](https://github.com/G-Research/fsharp-formatting-conventions), with the exception of us using the Stroustroup Style.
 You can format it that way by using this command:
 
 ```bash
@@ -83,3 +83,6 @@ Ensure that the fantomas tool is up to date:
 ```bash
 dotnet tool restore
 ```
+
+- All modules should have the [<RequireQualifiedAccess>] attribute
+- All DUs should have the [<RequireQualifiedAccess>] attribute. An exception to this rule are single case DUs with a value.

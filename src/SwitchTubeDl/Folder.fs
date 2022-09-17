@@ -1,3 +1,4 @@
+[<RequireQualifiedAccess>]
 module TubeDl.Folder
 
 /// Folder for List of Results with list of items in the Ok case. Returns all errors.

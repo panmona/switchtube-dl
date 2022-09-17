@@ -1,23 +1,23 @@
+[<RequireQualifiedAccess>]
 module TubeDl.Download.Download
 
 open FsToolkit.ErrorHandling
 open Microsoft.FSharpLu
 
+open TubeDl
 open TubeDl.Cli
 open TubeDl.Rich
 
 let private withToken cfg =
     let providedToken =
         match cfg.TokenParseResult with
-        | Ask ->
+        | TokenParseResult.Ask ->
             Markup.printn "Please specify the [bold green]token[/] for accessing SwitchTube."
             Markup.printn "If you don't have one generate one at [italic]https://tube.switch.ch/access_tokens[/]"
             let input = TextPrompt.secretPrompt "> "
 
-            input
-            |> TubeDl.Api.Token
-            |> TokenParseResult.Provided
-        | Provided t -> Provided t
+            input |> Token |> TokenParseResult.Provided
+        | TokenParseResult.Provided _ as p -> p
 
     { cfg with
         TokenParseResult = providedToken
@@ -25,12 +25,12 @@ let private withToken cfg =
 
 let runDownload res =
     match CliArgParse.initCfgFromArgs res with
-    | Error DownloadTypeMissing ->
+    | Error CfgParseError.DownloadTypeMissing ->
         Markup.eprintn "Specify a download type with [italic]--video[/] or [italic]--channel[/]"
-        Error ArgumentsNotSpecified
-    | Error InvalidPath ->
+        Error CliError.ArgumentsNotSpecified
+    | Error CfgParseError.InvalidPath ->
         eprintfn "The given path should be absolute"
-        Error ArgumentsNotSpecified
+        Error CliError.ArgumentsNotSpecified
     | Ok cliCfg ->
 
     let cfg = withToken cliCfg |> CompleteCfg.unsafeFromCliCfg

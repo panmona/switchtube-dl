@@ -1,9 +1,7 @@
 module TubeDl.ParseRange
 
 let tokens =
-    String.replace " " "" videosToDownload
-    |> Text.split [| ',' |]
-    |> List.ofArray
+    String.replace " " "" videosToDownload |> Text.split [| ',' |] |> List.ofArray
 
 let parseTokens (tokens : string list) =
     let parsedTokens =

@@ -1,3 +1,4 @@
+[<AutoOpen>]
 module TubeDl.Int
 
 let (|Int|_|) str =

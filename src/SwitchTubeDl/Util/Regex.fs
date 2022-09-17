@@ -1,3 +1,4 @@
+[<RequireQualifiedAccess>]
 module TubeDl.Regex
 
 open System.Text.RegularExpressions

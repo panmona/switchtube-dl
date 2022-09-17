@@ -1,3 +1,4 @@
+[<RequireQualifiedAccess>]
 module TubeDl.File
 
 open System.IO

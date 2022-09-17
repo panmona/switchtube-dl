@@ -4,15 +4,9 @@ A simple CLI for downloading videos from SwitchTube.
 
 This makes it a lot more convenient to consume the videos on-demand when you're offline.
 
-[![contributions welcome](https://img.shields.io/badge/contributions-welcome-brightgreen.svg?style=flat)](https://github.com/panmau/switchtube-dl/issues)
-[![Release](https://img.shields.io/github/v/tag/panmau/switchtube-dl?label=version)](https://github.com/panmau/switchtube-dl/releases/latest)
-[![CI](https://github.com/panmau/switchtube-dl/actions/workflows/ci.yml/badge.svg)](https://github.com/panmau/switchtube-dl/actions/workflows/ci.yml)
-
-> **Disclaimer**:
->
-> This isn't yet thoroughly tested. It will get tested in-depth throughout the next academic term.
->
-> Please report any issues that you find.
+[![contributions welcome](https://img.shields.io/badge/contributions-welcome-brightgreen.svg?style=flat)](https://github.com/panmona/switchtube-dl/issues)
+[![Release](https://img.shields.io/github/v/tag/panmona/switchtube-dl?label=version)](https://github.com/panmona/switchtube-dl/releases/latest)
+[![CI](https://github.com/panmona/switchtube-dl/actions/workflows/ci.yml/badge.svg)](https://github.com/panmona/switchtube-dl/actions/workflows/ci.yml)
 
 ## Features
 
@@ -39,17 +33,17 @@ yay -S switchtube-dl-bin
 #### Debian
 
 Download the `.deb` package for your architecture from
-the [latest release](https://github.com/panmau/switchtube-dl/releases/latest) and install it with your package manager.
+the [latest release](https://github.com/panmona/switchtube-dl/releases/latest) and install it with your package manager.
 
 ### macOS
 
 ```bash
-brew install panmau/panmau/switchtube-dl
+brew install panmona/panmona/switchtube-dl
 ```
 
 ### Windows
 
-Download the [latest windows release](https://github.com/panmau/switchtube-dl/releases/latest) zip for your
+Download the [latest windows release](https://github.com/panmona/switchtube-dl/releases/latest) zip for your
 architecture. If you aren't sure about your architecture, you're most likely going to have success with `win-x64.zip`.
 
 Unzip it and put the `.exe` in an appropriate place. For easier access, make sure that this place is contained in your

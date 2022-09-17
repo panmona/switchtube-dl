@@ -1,7 +1,6 @@
 namespace TubeDl
 
 open System.IO
-open FsHttp.Helper
 open FsToolkit.ErrorHandling
 open Microsoft.FSharpLu
 
@@ -9,10 +8,10 @@ open TubeDl
 
 type FullPath = | FullPath of string
 
+[<RequireQualifiedAccess>]
 module FullPath =
     let last (FullPath path) =
-        Text.split [| Path.directorySeparator |] path
-        |> Array.last
+        Text.split [| Path.directorySeparator |] path |> Array.last
 
     let mkFullPath basePath file = Path.combine basePath file |> FullPath
 
@@ -35,6 +34,7 @@ type FileWriteResult =
     | Written of FullPath
     | Skipped of FullPath
 
+[<RequireQualifiedAccess>]
 module HandleFiles =
     let private replaceInvalidChars str =
         // This list may be incomplete
@@ -60,10 +60,7 @@ module HandleFiles =
             ]
             |> List.contains c
 
-        str
-        |> String.toCharArray
-        |> Array.filter (isInvalid >> not)
-        |> System.String
+        str |> String.toCharArray |> Array.filter (isInvalid >> not) |> System.String
 
     let private validFileName str =
         let isSuboptimalChar =
@@ -95,16 +92,15 @@ module HandleFiles =
                 | :? IOException -> Error SaveFileError.IOError
                 | :? System.NotSupportedException -> Error (SaveFileError.InvalidPath fullPath)
 
-            let! _ =
-                task {
-                    try
-                        let! res = stream.CopyToAsync file
-                        return Ok res
-                    with
-                    | :? IOException
-                    | :? System.ObjectDisposedException
-                    | :? System.Threading.Tasks.TaskCanceledException -> return Error SaveFileError.IOError
-                }
+            let! _ = task {
+                try
+                    let! res = stream.CopyToAsync file
+                    return Ok res
+                with
+                | :? IOException
+                | :? System.ObjectDisposedException
+                | :? System.Threading.Tasks.TaskCanceledException -> return Error SaveFileError.IOError
+            }
 
             return fullPath
         }
@@ -117,10 +113,7 @@ module HandleFiles =
             | true, ExistingFilesHandling.KeepAsIs -> return Error (SaveFileError.FileExists fullPath)
             | true, ExistingFilesHandling.Skip -> return Ok (FileWriteResult.Skipped fullPath)
             | true, ExistingFilesHandling.Overwrite
-            | false, _ ->
-                return!
-                    saveFile fullPath stream
-                    |> AsyncResult.map FileWriteResult.Written
+            | false, _ -> return! saveFile fullPath stream |> AsyncResult.map FileWriteResult.Written
         }
 
     let fileName videoDetails videoPath =
@@ -136,18 +129,15 @@ module HandleFiles =
         $"%s{episode}%s{name}_%s{videoDetails.Id}.%s{extension}"
 
     let fullPathForVideo basePath videoDetails videoPath =
-        fileName videoDetails videoPath
-        |> FullPath.mkFullPath basePath
+        fileName videoDetails videoPath |> FullPath.mkFullPath basePath
 
     let saveVideo filesHandling basePath videoDetails videoPath stream =
-        let path =
-            fullPathForVideo basePath videoDetails videoPath
+        let path = fullPathForVideo basePath videoDetails videoPath
 
         saveFileFromStream filesHandling path stream
 
     let tryFindVideo filesHandling basePath videoDetails videoPath =
-        let (FullPath fullPath) =
-            fullPathForVideo basePath videoDetails videoPath
+        let (FullPath fullPath) = fullPathForVideo basePath videoDetails videoPath
 
         let tryFindByVideoId () =
             let esc = Regex.escape

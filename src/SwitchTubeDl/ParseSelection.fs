@@ -1,9 +1,8 @@
+[<RequireQualifiedAccess>]
 module TubeDl.ParseSelection
 
 open Microsoft.FSharpLu
 open FsToolkit.ErrorHandling
-
-open TubeDl.Int
 
 let (|Range|_|) str =
     let range = Text.split [| '-' |] str
@@ -24,10 +23,7 @@ let private parse tokens =
     |> List.fold Folder.allErrorOrAllOk (Ok [])
 
 let tryParseSelection str =
-    let tokens =
-        String.replace " " "" str
-        |> Text.split [| ',' |]
-        |> List.ofArray
+    let tokens = String.replace " " "" str |> Text.split [| ',' |] |> List.ofArray
 
     parse tokens
 

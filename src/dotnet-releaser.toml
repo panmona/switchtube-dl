@@ -2,12 +2,12 @@
 [msbuild]
 project = "SwitchTubeDl.sln"
 [github]
-user = "panmau"
+user = "panmona"
 repo = "switchtube-dl"
 
 [nuget]
 publish = false
 
 [brew]
-home = "homebrew-panmau"
+home = "homebrew-panmona"
 

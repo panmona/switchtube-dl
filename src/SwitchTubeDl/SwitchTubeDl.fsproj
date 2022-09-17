@@ -28,6 +28,7 @@
         <Compile Include="Util\File.fs" />
         <Compile Include="Util\Int.fs" />
         <Compile Include="Util\Directory.fs" />
+        <Compile Include="Api\ApiTypes.fs" />
         <Compile Include="Api\Entities.fs" />
         <Compile Include="Api\Paging.fs" />
         <Compile Include="Api\Api.fs" />
@@ -70,12 +71,12 @@
         </ResolvedFileToPublish>
 
         <PackageReference Include="Argu" Version="6.1.1" />
-        <PackageReference Include="FsHttp" Version="9.0.4" />
+        <PackageReference Include="FsHttp" Version="9.1.2" />
         <PackageReference Include="FsToolkit.ErrorHandling" Version="2.13.0" />
         <PackageReference Include="Microsoft.FSharpLu" Version="0.11.7" />
-        <PackageReference Include="Spectre.Console" Version="0.44.0" />
+        <PackageReference Include="Spectre.Console" Version="0.45.0" />
         <PackageReference Include="Thoth.Json.Net" Version="8.0.0" />
-        <PackageReference Update="FSharp.Core" Version="6.0.3" />
+        <PackageReference Update="FSharp.Core" Version="6.0.6" />
     </ItemGroup>
 
     <Target Name="RemoveMisc" AfterTargets="_PublishNoBuildAlternative">

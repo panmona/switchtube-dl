@@ -2,6 +2,7 @@ namespace TubeDl.Rich
 
 open Spectre.Console
 
+[<RequireQualifiedAccess>]
 module Markup =
     let print markup = AnsiConsole.Markup markup
 

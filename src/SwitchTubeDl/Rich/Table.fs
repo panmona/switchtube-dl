@@ -1,35 +1,39 @@
+[<RequireQualifiedAccess>]
 module TubeDl.Rich.Table
 
 open Spectre.Console
 
+[<RequireQualifiedAccess>]
 type Alignment =
     | Default
     | Center
     | Right
 
-type Column =
-    {
-        Title : string
-        Alignment : Alignment
-    }
+type Column = {
+    Title : string
+    Alignment : Alignment
+}
 
+[<RequireQualifiedAccess>]
 module Column =
-    let init title = { Title = title ; Alignment = Default }
+    let init title = {
+        Title = title
+        Alignment = Alignment.Default
+    }
 
     let withAlign title align = { Title = title ; Alignment = align }
 
 let setBorder table border =
-    HasTableBorderExtensions.Border (table, border)
-    |> ignore
+    HasTableBorderExtensions.Border (table, border) |> ignore
 
 let addColumns (table : Table) columns =
     let addColumn col =
         let tableCol = TableColumn col.Title
 
         match col.Alignment with
-        | Default -> ()
-        | Right -> tableCol.RightAligned () |> ignore
-        | Center -> tableCol.Centered () |> ignore
+        | Alignment.Default -> ()
+        | Alignment.Right -> tableCol.RightAligned () |> ignore
+        | Alignment.Center -> tableCol.Centered () |> ignore
 
         table.AddColumn tableCol |> ignore
 

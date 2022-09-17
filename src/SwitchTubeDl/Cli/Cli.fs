@@ -2,6 +2,7 @@ namespace TubeDl.Cli
 
 open Argu
 
+[<RequireQualifiedAccess>]
 type CliArgs =
     | [<Unique ; AltCommandLine("-v")>] Video of video_id : string
     | [<Unique ; AltCommandLine("-c")>] Channel of channel_id : string
@@ -25,5 +26,3 @@ type CliArgs =
             | Force -> "Existing file handling option. Overwrite already existing files"
             | All -> "Filter option. Downloads all videos in a channel"
             | Version -> "Display the current version."
-
-// TODO add date options
