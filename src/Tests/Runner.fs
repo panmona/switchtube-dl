@@ -6,11 +6,8 @@ open Expecto
 [<EntryPoint>]
 let main args =
     try
-        // TODO mp howwwwww
-        runTestsWithArgs
-            { defaultConfig with
-                runInParallel = true
-            }
+        runTestsWithCLIArgs
+            []
             args
             AllTests.tests
     with e ->
