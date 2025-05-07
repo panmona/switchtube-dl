@@ -2,7 +2,7 @@
 
     <PropertyGroup>
         <OutputType>Exe</OutputType>
-        <TargetFramework>net6.0</TargetFramework>
+        <TargetFramework>net8.0</TargetFramework>
         <RootNamespace>TubeDl</RootNamespace>
         <AssemblyName>switchtube-dl</AssemblyName>
         <PackageLicenseExpression>MIT</PackageLicenseExpression>
@@ -55,8 +55,8 @@
     </ItemGroup>
 
     <ItemGroup>
-        <PackageReference Include="FsToolkit.ErrorHandling.TaskResult" Version="2.13.0" />
-        <PackageReference Include="MinVer" Version="3.1.0">
+        <PackageReference Include="FsToolkit.ErrorHandling.TaskResult" Version="4.18.0" />
+        <PackageReference Include="MinVer" Version="6.0.0">
             <PrivateAssets>all</PrivateAssets>
             <IncludeAssets>runtime; build; native; contentfiles; analyzers; buildtransitive</IncludeAssets>
         </PackageReference>
@@ -70,13 +70,13 @@
             <CopyToPublishDirectory>PreserveNewest</CopyToPublishDirectory>
         </ResolvedFileToPublish>
 
-        <PackageReference Include="Argu" Version="6.1.1" />
-        <PackageReference Include="FsHttp" Version="9.1.2" />
-        <PackageReference Include="FsToolkit.ErrorHandling" Version="2.13.0" />
+        <PackageReference Include="Argu" Version="6.2.5" />
+        <PackageReference Include="FsHttp" Version="15.0.1" />
+        <PackageReference Include="FsToolkit.ErrorHandling" Version="4.18.0" />
         <PackageReference Include="Microsoft.FSharpLu" Version="0.11.7" />
-        <PackageReference Include="Spectre.Console" Version="0.45.0" />
-        <PackageReference Include="Thoth.Json.Net" Version="8.0.0" />
-        <PackageReference Update="FSharp.Core" Version="6.0.6" />
+        <PackageReference Include="Spectre.Console" Version="0.50.0" />
+        <PackageReference Include="Thoth.Json.Net" Version="12.0.0" />
+        <PackageReference Update="FSharp.Core" Version="9.0.202" />
     </ItemGroup>
 
     <Target Name="RemoveMisc" AfterTargets="_PublishNoBuildAlternative">
