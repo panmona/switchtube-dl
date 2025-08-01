@@ -1,6 +1,6 @@
 # configuration file for dotnet-releaser
 [msbuild]
-project = "SwitchTubeDl.sln"
+project = "SwitchtubeDl.sln"
 [github]
 user = "panmona"
 repo = "switchtube-dl"
