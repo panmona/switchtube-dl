@@ -25,7 +25,7 @@ module ChannelDetails =
 type VideoDetailsApi = {
     Id : string
     ProfileId : int
-    ChannelId : int
+    ChannelId : string
     Title : string
     /// API allows any possible string
     EpisodeOpt : string option
@@ -42,7 +42,7 @@ module VideoDetailsApi =
         Decode.object (fun get -> {
             Id = get.Required.Field "id" Decode.string
             ProfileId = get.Required.Field "profile_id" Decode.int
-            ChannelId = get.Required.Field "channel_id" Decode.int
+            ChannelId = get.Required.Field "channel_id" Decode.string
             Title = get.Required.Field "title" Decode.string
             EpisodeOpt = get.Optional.Field "episode" Decode.string
             PublishedAtOpt = get.Optional.Field "published_at" Decode.datetimeOffset
@@ -54,7 +54,7 @@ module VideoDetailsApi =
 type VideoDetails = {
     Id : string
     ProfileId : int
-    ChannelId : int
+    ChannelId : string
     Title : string
     /// API allows any possible string
     EpisodeOpt : string option
